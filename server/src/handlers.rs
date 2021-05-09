@@ -18,6 +18,8 @@ pub fn init(app: &mut Server<AppContext>) {
     let mut days_api = app.at("/api/v0/days");
     days_api.at("/:date").get(get_day);
     days_api.at("/:date/randomize").put(randomize_meal);
+    days_api.at("/:date/lunch/randomize").put(randomize_lunch);
+    days_api.at("/:date/dinner/randomize").put(randomize_dinner);
 }
 
 #[derive(Serialize)]
@@ -54,8 +56,21 @@ async fn randomize_meal(req: Request<AppContext>) -> tide::Result<Body> {
     Body::from_json(&day)
 }
 
+async fn randomize_lunch(req: Request<AppContext>) -> tide::Result<Body> {
+    let date = parse_iso_date_param(&req, "date")?;
+    let day = repository::randomize_meal(&req.state().pool, date, Meal::Lunch).await?;
+    Body::from_json(&day)
+}
+
+async fn randomize_dinner(req: Request<AppContext>) -> tide::Result<Body> {
+    let date = parse_iso_date_param(&req, "date")?;
+    let day = repository::randomize_meal(&req.state().pool, date, Meal::Dinner).await?;
+    Body::from_json(&day)
+}
+
 fn parse_iso_date_param(req: &Request<AppContext>, param: &str) -> Result<Date, tide::Error> {
-    Date::parse(req.param(param)?, "%F").map_err(|err| {
+    let iso_date_format = "%F";
+    Date::parse(req.param(param)?, iso_date_format).map_err(|err| {
         tide::Error::new(
             StatusCode::BadRequest,
             anyhow::Error::new(err).context(format!("Failed to parse url param '{}'", param)),
