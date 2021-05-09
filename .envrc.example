@@ -1,0 +1,6 @@
+export DATABASE_URL=postgres://admin:admin@localhost:15432/slicendice
+export REDIS_URL=redis://localhost:16379
+export SLICE_USER=user
+export SLICE_PASS=pass
+export GATEWAY_URL=http://:8090
+export SERVER_URL=http://localhost:8091
