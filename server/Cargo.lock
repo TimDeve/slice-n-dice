@@ -1763,6 +1763,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-std",
+ "rand 0.8.3",
  "serde",
  "sqlx",
  "tide",

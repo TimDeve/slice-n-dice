@@ -5,7 +5,7 @@ use tide::{Body, Request, Response, Server, StatusCode};
 use time::Date;
 
 use crate::{
-    domain::{NewRecipe, Recipe},
+    domain::{Meal, NewRecipe, Recipe},
     repository, AppContext,
 };
 
@@ -17,6 +17,7 @@ pub fn init(app: &mut Server<AppContext>) {
 
     let mut days_api = app.at("/api/v0/days");
     days_api.at("/:date").get(get_day);
+    days_api.at("/:date/randomize").put(randomize_meal);
 }
 
 #[derive(Serialize)]
@@ -44,6 +45,12 @@ async fn delete_recipe(req: Request<AppContext>) -> tide::Result<Response> {
 async fn get_day(req: Request<AppContext>) -> tide::Result<Body> {
     let date = parse_iso_date_param(&req, "date")?;
     let day = repository::get_day(&req.state().pool, date).await?;
+    Body::from_json(&day)
+}
+
+async fn randomize_meal(req: Request<AppContext>) -> tide::Result<Body> {
+    let date = parse_iso_date_param(&req, "date")?;
+    let day = repository::randomize_meal(&req.state().pool, date, Meal::Both).await?;
     Body::from_json(&day)
 }
 

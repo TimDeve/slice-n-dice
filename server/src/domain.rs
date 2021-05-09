@@ -25,3 +25,9 @@ pub struct Day {
     pub lunch: Option<Recipe>,
     pub dinner: Option<Recipe>,
 }
+
+pub enum Meal {
+    Lunch,
+    Dinner,
+    Both,
+}
