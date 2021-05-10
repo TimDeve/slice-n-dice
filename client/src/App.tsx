@@ -25,6 +25,7 @@ import CloseIcon from "@material-ui/icons/Close"
 import dayjs from "dayjs"
 import duration from "dayjs/plugin/duration"
 import localizedFormat from "dayjs/plugin/localizedFormat"
+import { SnackbarKey, SnackbarProvider, useSnackbar } from "notistack"
 
 import * as gateway from "./gateway"
 import { Recipe } from "./domain"
@@ -43,16 +44,28 @@ const theme = createMuiTheme({
   },
 })
 
+const notistackRef = React.createRef<SnackbarProvider>()
+
 const queryClient = new QueryClient()
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Page />
-      </ThemeProvider>
-    </QueryClientProvider>
+    <SnackbarProvider
+      maxSnack={3}
+      ref={notistackRef}
+      action={key => (
+        <Button onClick={() => notistackRef.current?.closeSnackbar(key)}>
+          Dismiss
+        </Button>
+      )}
+    >
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Page />
+        </ThemeProvider>
+      </QueryClientProvider>
+    </SnackbarProvider>
   )
 }
 
@@ -101,13 +114,17 @@ interface NewRecipeFormProps {
   onSuccess: () => void
 }
 function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
+  const { enqueueSnackbar } = useSnackbar()
+  const [name, setName] = useState("")
   const { mutateAsync: createRecipe } = useMutation(gateway.createRecipe, {
     onSuccess: () => {
       queryClient.invalidateQueries(gateway.getRecipes.name)
-      onSuccess()
+      setName("")
+    },
+    onError: () => {
+      enqueueSnackbar("Failed to create recipe", { variant: "error" })
     },
   })
-  const [name, setName] = useState("")
 
   return (
     <Card style={{ marginTop: "14px", marginBottom: "14px" }}>
@@ -163,9 +180,13 @@ function RecipeList() {
 }
 
 function RecipeItem({ name, id }: Recipe) {
+  const { enqueueSnackbar } = useSnackbar()
   const { mutateAsync: deleteRecipe } = useMutation(gateway.deleteRecipe, {
     onSuccess: () => {
       queryClient.invalidateQueries(gateway.getRecipes.name)
+    },
+    onError: () => {
+      enqueueSnackbar("Failed to delete recipe", { variant: "error" })
     },
   })
 
