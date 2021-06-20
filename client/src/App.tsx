@@ -10,9 +10,6 @@ import {
   Tabs,
   Tab,
 } from "@material-ui/core"
-import dayjs from "dayjs"
-import duration from "dayjs/plugin/duration"
-import localizedFormat from "dayjs/plugin/localizedFormat"
 import { SnackbarProvider } from "notistack"
 import {
   BrowserRouter as Router,
@@ -25,9 +22,6 @@ import {
 
 import Recipes from "./Recipes"
 import Calendar from "./Calendar"
-
-dayjs.extend(localizedFormat)
-dayjs.extend(duration)
 
 const theme = createMuiTheme({
   palette: {
