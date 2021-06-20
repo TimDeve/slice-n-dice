@@ -52,7 +52,7 @@ function Day({ day }: { day: Dayjs }) {
 
   return (
     <li>
-      {dayjs().format("LL")}
+      {day.format("LL")}
       <br />
       Lunch:{" "}
       <Meal
