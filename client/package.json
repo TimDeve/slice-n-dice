@@ -21,29 +21,28 @@
     "last 3 firefox version"
   ],
   "dependencies": {
-    "@date-io/dayjs": "^2.10.8",
+    "@date-io/dayjs": "^2.10.11",
     "@material-ui/core": "^4.11.4",
     "@material-ui/icons": "^4.11.2",
-    "@testing-library/jest-dom": "^5.12.0",
-    "@testing-library/react": "^11.2.6",
-    "@testing-library/user-event": "^13.1.8",
-    "@types/jest": "^26.0.23",
-    "@types/node": "^15.0.2",
-    "@types/react": "^17.0.5",
-    "@types/react-dom": "^17.0.3",
-    "@types/react-router-dom": "^5.1.7",
-    "dayjs": "^1.10.4",
-    "node-sass": "^6.0.0",
-    "notistack": "^1.0.7",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.0.0",
+    "@testing-library/user-event": "^13.1.9",
+    "@types/jest": "26.0.23",
+    "@types/node": "15.12.5",
+    "@types/react": "17.0.11",
+    "@types/react-dom": "17.0.8",
+    "@types/react-router-dom": "5.1.7",
+    "dayjs": "^1.10.5",
+    "node-sass": "^6.0.1",
+    "notistack": "^1.0.9",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-query": "^3.16.0",
+    "react-query": "^3.18.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
-    "typescript": "^4.2.4",
-    "web-vitals": "^1.1.2"
+    "typescript": "^4.3.4"
   },
   "devDependencies": {
-    "prettier": "^2.3.0"
+    "prettier": "^2.3.2"
   }
 }

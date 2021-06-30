@@ -137,7 +137,7 @@ function RecipeItem({ name, id }: Recipe) {
   return (
     <Card style={{ marginTop: "14px", marginBottom: "14px" }}>
       <CardContent>
-        <Typography variant="h5" component="p">
+        <Typography variant="h5" component="p" style={{ fontSize: "1.286em" }}>
           {name}
         </Typography>
       </CardContent>
