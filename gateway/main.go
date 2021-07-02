@@ -24,7 +24,6 @@ var adminLogin = login{
 }
 
 var apiServer = os.Getenv("SERVER_URL")
-var readServer = os.Getenv("READ_URL")
 
 func main() {
 	initSession()
@@ -34,8 +33,7 @@ func main() {
 	r.HandleFunc("/api/v0/login", loginHandler).Methods("POST")
 	r.HandleFunc("/api/v0/authenticated", restricted(authenticatedHandler))
 
-	r.HandleFunc("/api/{proxyPath:v0/read.*}", restrictedProxy(readServer))
-	r.HandleFunc("/api/{proxyPath:.*}", restrictedProxy(apiServer))
+	r.HandleFunc("/{proxyPath:api/.*}", restrictedProxy(apiServer))
 
 	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "public/index.html")

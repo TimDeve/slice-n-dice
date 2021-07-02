@@ -26,7 +26,7 @@ async fn main() -> Result<()> {
 
     handlers::init(&mut app);
 
-    app.listen("127.0.0.1:8080").await?;
+    app.listen("127.0.0.1:8091").await?;
 
     Ok(())
 }

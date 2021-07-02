@@ -1,5 +1,25 @@
 import dayjs from "dayjs"
+import axios from "axios"
+
 import { Recipe, NewRecipe, Day } from "./domain"
+
+export async function logIn({
+  username,
+  password,
+}: {
+  username: string
+  password: string
+}) {
+  try {
+    await axios.post("/api/v0/login", {
+      username,
+      password,
+    })
+  } catch (e) {
+    console.error(e)
+    throw new Error("Failed to login")
+  }
+}
 
 interface GetRecipesResponse {
   recipes: {
@@ -10,43 +30,34 @@ interface GetRecipesResponse {
 
 export async function getRecipes(): Promise<Recipe[]> {
   try {
-    const res = await fetch("/api/v0/recipes")
-    if (!res.ok) throw new Error("Failed to fetch recipes")
-    const json: GetRecipesResponse = await res.json()
-    return json.recipes.map(({ id, name }) => ({
+    const res = await axios.get<GetRecipesResponse>("/api/v0/recipes")
+    return res.data.recipes.map(({ id, name }) => ({
       id,
       name,
     }))
   } catch (e) {
     console.error(e)
-    throw e
+    throw new Error("Failed to fetch recipes")
   }
 }
 
 export async function createRecipe({ name }: NewRecipe): Promise<void> {
   try {
-    const res = await fetch("/api/v0/recipes", {
-      method: "POST",
-      body: JSON.stringify({
-        name,
-      }),
+    await axios.post("/api/v0/recipes", {
+      name,
     })
-    if (!res.ok) throw new Error("Failed to create recipe")
   } catch (e) {
     console.error(e)
-    throw e
+    throw new Error("Failed to create recipe")
   }
 }
 
 export async function deleteRecipe(recipeId: string): Promise<void> {
   try {
-    const res = await fetch(`/api/v0/recipes/${recipeId}`, {
-      method: "DELETE",
-    })
-    if (!res.ok) throw new Error("Failed to delete recipe")
+    await axios.delete(`/api/v0/recipes/${recipeId}`)
   } catch (e) {
     console.error(e)
-    throw e
+    throw new Error("Failed to delete recipe")
   }
 }
 
@@ -58,10 +69,8 @@ interface GetDayResponse {
 
 export async function getDay(isoDate: string): Promise<Day> {
   try {
-    const res = await fetch(`/api/v0/days/${isoDate}`)
-    if (!res.ok) throw new Error(`Failed to fetch day '${isoDate}'`)
-    const json: GetDayResponse = await res.json()
-    const { date, lunch, dinner } = json
+    const res = await axios.get<GetDayResponse>(`/api/v0/days/${isoDate}`)
+    const { date, lunch, dinner } = res.data
     return {
       date: dayjs(date),
       lunch,
@@ -69,7 +78,7 @@ export async function getDay(isoDate: string): Promise<Day> {
     }
   } catch (e) {
     console.error(e)
-    throw e
+    throw new Error(`Failed to fetch day '${isoDate}'`)
   }
 }
 
@@ -81,12 +90,10 @@ export async function randomizeMeal({
   meal: "lunch" | "dinner"
 }): Promise<Day> {
   try {
-    const res = await fetch(`/api/v0/days/${isoDate}/${meal}/randomize`, {
-      method: "PUT",
-    })
-    if (!res.ok) throw new Error("Failed to randomize ${}")
-    const json: GetDayResponse = await res.json()
-    const { date, lunch, dinner } = json
+    const res = await axios.put<GetDayResponse>(
+      `/api/v0/days/${isoDate}/${meal}/randomize`
+    )
+    const { date, lunch, dinner } = res.data
     return {
       date: dayjs(date),
       lunch,
@@ -94,6 +101,6 @@ export async function randomizeMeal({
     }
   } catch (e) {
     console.error(e)
-    throw e
+    throw new Error(`Failed to randomize ${isoDate}`)
   }
 }

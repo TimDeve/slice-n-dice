@@ -30,24 +30,30 @@ function useInterval(callback: () => void, delay: number) {
 }
 
 function LoadingText() {
+  const nonBreakingSpace = "\u00a0"
+  const [hidden, setHidden] = useState(true)
   const [ellipsis, setEllipsis] = useState("...")
 
   useInterval(() => {
-    setEllipsis((elli) => {
-      switch (elli) {
-        case ".":
-          return ".."
-        case "..":
-          return "..."
-        case "...":
-          return ""
-        default:
-          return "."
-      }
-    })
+    if (hidden) {
+      setHidden(false)
+    } else {
+      setEllipsis((elli) => {
+        switch (elli) {
+          case ".":
+            return ".."
+          case "..":
+            return "..."
+          case "...":
+            return ""
+          default:
+            return "."
+        }
+      })
+    }
   }, 500)
 
-  return <>Loading{ellipsis}</>
+  return <>{hidden ? nonBreakingSpace : `Loading${ellipsis}`}</>
 }
 
 interface MealProps {
@@ -65,17 +71,7 @@ function Meal({ label, isLoading, error, meal, randomize, style }: MealProps) {
 
     return (
       <>
-        <Typography
-          variant="subtitle1"
-          style={{ fontSize: "0.857em", color: "#a7a7a7" }}
-        >
-          {label}
-        </Typography>
-        <Typography variant="h5" style={{ fontSize: "1.286em" }}>
-          {meal?.name || (
-            <span style={{ color: "#a7a7a7" }}>Nothing yet...</span>
-          )}
-        </Typography>
+        {meal?.name || <span style={{ color: "#a7a7a7" }}>Nothing yet...</span>}
       </>
     )
   }
@@ -83,7 +79,15 @@ function Meal({ label, isLoading, error, meal, randomize, style }: MealProps) {
   return (
     <Card style={style}>
       <CardContent style={{ paddingBottom: 0 }}>
-        <MealContent />
+        <Typography
+          variant="subtitle1"
+          style={{ fontSize: "0.857em", color: "#a7a7a7" }}
+        >
+          {label}
+        </Typography>
+        <Typography variant="h5" style={{ fontSize: "1.286em" }}>
+          <MealContent />
+        </Typography>
       </CardContent>
       <CardActions>
         <Button
