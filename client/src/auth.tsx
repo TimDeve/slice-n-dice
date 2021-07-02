@@ -15,9 +15,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return res
       },
       error => {
-        if (axios.isAxiosError(error) && error.code === "401") {
-          setIsLoggedIn(false)
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+            setIsLoggedIn(false)
         }
+
         return Promise.reject(error)
       }
     )

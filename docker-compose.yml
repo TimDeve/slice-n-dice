@@ -1,6 +1,20 @@
 version: "3.8"
 
 services:
+  app:
+    build: .
+    ports: ["8099:8090"]
+    environment:
+     - SLICE_USER=user
+     - SLICE_PASS=pass
+     - DATABASE_URL=postgres://admin:admin@db:5432/slicendice
+     - REDIS_URL=redis://redis:6379
+    links:
+      - db
+      - redis
+    depends_on:
+      - db
+      - redis
   db:
     image: postgres
     ports: ["15432:5432"]
