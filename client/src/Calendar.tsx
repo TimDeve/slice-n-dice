@@ -38,7 +38,7 @@ function LoadingText() {
     if (hidden) {
       setHidden(false)
     } else {
-      setEllipsis((elli) => {
+      setEllipsis(elli => {
         switch (elli) {
           case ".":
             return ".."
@@ -168,7 +168,7 @@ function Day({ day }: { day: Dayjs }) {
 export default function Calendar() {
   return (
     <Container maxWidth="sm" style={{ paddingLeft: 0 }}>
-      {[...Array(7).keys()].map((dayOfTheWeek) => {
+      {[...Array(7).keys()].map(dayOfTheWeek => {
         return <Day key={dayOfTheWeek} day={dayjs().weekday(dayOfTheWeek)} />
       })}
     </Container>

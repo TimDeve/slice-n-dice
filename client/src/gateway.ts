@@ -21,6 +21,17 @@ export async function logIn({
   }
 }
 
+export async function logOut() {
+  try {
+    await axios.post("/api/v0/logout")
+  } catch (e) {
+    if (!(axios.isAxiosError(e) && e.response?.status === 401)) {
+      console.error(e)
+      throw new Error("Failed to logout")
+    }
+  }
+}
+
 interface GetRecipesResponse {
   recipes: {
     id: string

@@ -24,6 +24,7 @@ import Recipes from "./Recipes"
 import Calendar from "./Calendar"
 import Login from "./Login"
 import { AuthProvider, useAuth } from "./auth"
+import * as gateway from "./gateway"
 
 const theme = createMuiTheme({
   palette: {
@@ -76,17 +77,17 @@ function TopBar() {
 
   return (
     <AppBar position="sticky">
-      <Toolbar>
+      <Toolbar style={{ display: "flex", justifyContent: "space-between" }}>
         <Typography component="p" variant="h6">
           Slice n' Dice
         </Typography>
+
+        <Button style={{ color: "white" }} onClick={() => gateway.logOut()}>
+          Logout
+        </Button>
       </Toolbar>
-      {["calendar", "recipes"].indexOf(currentPage) >= 0  && (
-        <Tabs
-          value={currentPage}
-          onChange={console.log}
-          aria-label="simple tabs example"
-        >
+      {["calendar", "recipes"].indexOf(currentPage) >= 0 && (
+        <Tabs value={currentPage} aria-label="simple tabs example">
           <Tab label="Calendar" value="calendar" component={Link} to={"/"} />
           <Tab
             label="Recipes"

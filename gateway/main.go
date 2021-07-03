@@ -31,6 +31,7 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/api/v0/login", loginHandler).Methods("POST")
+	r.HandleFunc("/api/v0/logout", logoutHandler).Methods("POST")
 	r.HandleFunc("/api/v0/authenticated", restricted(authenticatedHandler))
 
 	r.HandleFunc("/{proxyPath:api/.*}", restrictedProxy(apiServer))
@@ -79,6 +80,21 @@ func loginHandler(wr http.ResponseWriter, req *http.Request) {
 		http.Error(wr, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
 	fmt.Fprint(wr, http.StatusText(http.StatusOK))
+}
+
+func logoutHandler(wr http.ResponseWriter, req *http.Request) {
+	store, err := session.Start(context.Background(), wr, req)
+	if err != nil {
+		http.Error(wr, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	store.Flush()
+	if store.Save() != nil {
+		http.Error(wr, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
+
+	http.Error(wr, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 }
 
 func proxy(target string) func(http.ResponseWriter, *http.Request) {

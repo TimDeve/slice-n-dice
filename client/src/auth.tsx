@@ -16,7 +16,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       error => {
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-            setIsLoggedIn(false)
+          setIsLoggedIn(false)
         }
 
         return Promise.reject(error)

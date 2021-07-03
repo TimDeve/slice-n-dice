@@ -18,7 +18,7 @@ import { useSnackbar } from "notistack"
 import * as gateway from "./gateway"
 import { Recipe } from "./domain"
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   fab: {
     position: "fixed",
     bottom: theme.spacing(2),
@@ -72,7 +72,7 @@ function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
   return (
     <Card style={{ marginTop: "14px", marginBottom: "14px" }}>
       <form
-        onSubmit={(e) => {
+        onSubmit={e => {
           e.preventDefault()
           if (name) {
             createRecipe({
@@ -86,7 +86,7 @@ function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
             value={name}
             name="name"
             placeholder="Recipe Name"
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
           />
         </CardContent>
         <CardActions>
@@ -115,7 +115,7 @@ function RecipeList() {
 
   return (
     <>
-      {data.map((recipe) => (
+      {data.map(recipe => (
         <RecipeItem key={recipe.id} {...recipe} />
       ))}
     </>
