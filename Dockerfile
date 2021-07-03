@@ -17,11 +17,8 @@ RUN go build -o slice-gateway ./...
 #
 # NODE BUILDER
 #
-FROM node:lts-buster-slim as node-builder
+FROM node:16-buster-slim as node-builder
 LABEL builder=true
-RUN apt-get update \
- && apt-get install -y python build-essential \
- && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /root/app
 WORKDIR /root/app
@@ -34,23 +31,19 @@ RUN NODE_ENV=production npm run build
 #
 # RUST BUILDER
 #
-FROM rust:1.52-slim-buster as rust-builder
+FROM rust:1.53-slim-buster as rust-builder
 LABEL builder=true
 
 RUN mkdir -p /root/app
 WORKDIR /root/app
-RUN apt-get update && \
-      apt-get install -y \
-      build-essential \
-      cmake \
-      curl \
-      file \
-      git \
-      # libpq-dev \
-      libssl-dev \
-      pkgconf \
-      xutils-dev \
-      ca-certificates
+RUN apt-get update \
+ && apt-get install -y \
+            build-essential \
+            git \
+            libssl-dev \
+            pkgconf \
+            ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 
 ADD ./server ./server
 WORKDIR ./server
@@ -59,14 +52,19 @@ RUN cargo build --release
 #
 # RUNNER
 #
-FROM node:15-buster-slim as runner
+FROM debian:buster-slim as runner
 RUN apt-get update \
- && apt-get install -y git libssl1.1 \
+ && apt-get install -y \
+            libssl1.1 \
+            supervisor \
  && rm -rf /var/lib/apt/lists/*
-RUN npm install -g concurrently
+
 RUN mkdir /root/app
 WORKDIR /root/app
-WORKDIR /root/app
+
+RUN mkdir -p /var/log/supervisor
+COPY supervisord.conf supervisord.conf
+
 COPY --from=node-builder /root/app/client/build ./public
 COPY --from=rust-builder /root/app/server/target/release/slice-n-dice-server .
 COPY --from=golang-builder /root/app/gateway/slice-gateway .
@@ -76,5 +74,5 @@ ENV SERVER_URL http://localhost:8091
 ENV READ_URL http://localhost:8092
 
 EXPOSE 8090
-CMD concurrently -n 'Gateway,Server' -c 'yellow,cyan' --kill-others './slice-gateway' './slice-n-dice-server'
+CMD ["supervisord", "-n", "-c", "/root/app/supervisord.conf"]
 
