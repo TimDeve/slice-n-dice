@@ -30,12 +30,14 @@ export default function Login() {
     >
       <input
         type="text"
+        autoComplete="username"
         value={username}
         onChange={e => setUsername(e.target.value)}
       />
       <br />
       <input
-        type="text"
+        type="password"
+        autoComplete="current-password"
         value={password}
         onChange={e => setPassword(e.target.value)}
       />
