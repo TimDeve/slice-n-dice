@@ -1,7 +1,13 @@
 import axios from "axios"
 import React, { ReactNode, useContext, useEffect, useState } from "react"
 
-const InternalAuthContext = React.createContext({ isLoggedIn: true })
+interface AuthContext {
+  isLoggedIn: boolean
+}
+
+const InternalAuthContext = React.createContext<AuthContext>({
+  isLoggedIn: true,
+})
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true)
@@ -29,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <Provider value={{ isLoggedIn }}>{children}</Provider>
 }
 
-export function useAuth() {
+export function useAuth(): AuthContext {
   const authContext = useContext(InternalAuthContext)
   return authContext
 }

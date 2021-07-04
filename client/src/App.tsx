@@ -65,6 +65,8 @@ export default function App() {
 }
 
 function TopBar() {
+  const { isLoggedIn } = useAuth()
+
   const isCalendarPage = useRouteMatch({ path: "/", exact: true })!!
   const isRecipesPage = useRouteMatch({ path: "/recipes", exact: true })!!
 
@@ -82,9 +84,11 @@ function TopBar() {
           Slice n' Dice
         </Typography>
 
-        <Button style={{ color: "white" }} onClick={() => gateway.logOut()}>
-          Logout
-        </Button>
+        {isLoggedIn && (
+          <Button style={{ color: "white" }} onClick={() => gateway.logOut()}>
+            Logout
+          </Button>
+        )}
       </Toolbar>
       {["calendar", "recipes"].indexOf(currentPage) >= 0 && (
         <Tabs value={currentPage} aria-label="simple tabs example">
