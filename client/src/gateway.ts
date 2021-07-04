@@ -1,7 +1,7 @@
 import dayjs from "dayjs"
 import axios from "axios"
 
-import { Recipe, NewRecipe, Day } from "./domain"
+import { Recipe, NewRecipe, Day, Meal } from "./domain"
 
 export async function logIn({
   username,
@@ -74,8 +74,8 @@ export async function deleteRecipe(recipeId: string): Promise<void> {
 
 interface GetDayResponse {
   date: string
-  lunch: Recipe | null
-  dinner: Recipe | null
+  lunch: Meal
+  dinner: Meal
 }
 
 export async function getDay(isoDate: string): Promise<Day> {
@@ -103,6 +103,29 @@ export async function randomizeMeal({
   try {
     const res = await axios.put<GetDayResponse>(
       `/api/v0/days/${isoDate}/${meal}/randomize`
+    )
+    const { date, lunch, dinner } = res.data
+    return {
+      date: dayjs(date),
+      lunch,
+      dinner,
+    }
+  } catch (e) {
+    console.error(e)
+    throw new Error(`Failed to randomize ${isoDate}`)
+  }
+}
+
+export async function cheatMeal({
+  isoDate,
+  meal,
+}: {
+  isoDate: string
+  meal: "lunch" | "dinner"
+}): Promise<Day> {
+  try {
+    const res = await axios.put<GetDayResponse>(
+      `/api/v0/days/${isoDate}/${meal}/cheat`
     )
     const { date, lunch, dinner } = res.data
     return {

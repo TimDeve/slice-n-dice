@@ -3,7 +3,7 @@ use sqlx::{Executor, Postgres};
 use time::Date;
 use uuid::Uuid;
 
-use crate::domain::{Day, Meal, NewRecipe, Recipe};
+use crate::domain::{Day, Meal, MealType, NewRecipe, Recipe};
 
 pub trait PgExecutor<'a>: Executor<'a, Database = Postgres> + Clone {}
 impl<'a, T> PgExecutor<'a> for T where T: Executor<'a, Database = Postgres> + Clone {}
@@ -66,6 +66,8 @@ pub struct DayDb {
     pub date: Date,
     pub lunch_id: Option<Uuid>,
     pub dinner_id: Option<Uuid>,
+    pub lunch_is_cheat: bool,
+    pub dinner_is_cheat: bool,
 }
 
 pub async fn get_day<'a, E: PgExecutor<'a>>(exec: E, date: Date) -> anyhow::Result<Day> {
@@ -81,24 +83,34 @@ pub async fn get_day<'a, E: PgExecutor<'a>>(exec: E, date: Date) -> anyhow::Resu
     if let Some(daydb) = maybe_daydb {
         let mut day = Day {
             date: daydb.date,
-            lunch: Option::None,
-            dinner: Option::None,
+            lunch: Meal::Unset,
+            dinner: Meal::Unset,
         };
 
         if let Some(lunch_id) = daydb.lunch_id {
-            day.lunch = get_recipe(exec.clone(), lunch_id).await?;
+            day.lunch = match get_recipe(exec.clone(), lunch_id).await? {
+                Option::Some(recipe) => Meal::Recipe(recipe),
+                Option::None => Meal::Unset,
+            };
+        } else if daydb.lunch_is_cheat {
+            day.lunch = Meal::Cheat;
         }
 
         if let Some(dinner_id) = daydb.dinner_id {
-            day.dinner = get_recipe(exec.clone(), dinner_id).await?;
+            day.dinner = match get_recipe(exec.clone(), dinner_id).await? {
+                Option::Some(recipe) => Meal::Recipe(recipe),
+                Option::None => Meal::Unset,
+            };
+        } else if daydb.dinner_is_cheat {
+            day.dinner = Meal::Cheat;
         }
 
         Ok(day)
     } else {
         Ok(Day {
             date,
-            lunch: Option::None,
-            dinner: Option::None,
+            lunch: Meal::Unset,
+            dinner: Meal::Unset,
         })
     }
 }
@@ -106,19 +118,19 @@ pub async fn get_day<'a, E: PgExecutor<'a>>(exec: E, date: Date) -> anyhow::Resu
 pub async fn randomize_meal<'a, E: PgExecutor<'a>>(
     exec: E,
     date: Date,
-    meal: Meal,
+    meal: MealType,
 ) -> anyhow::Result<Day> {
     let recipes = get_recipes(exec.clone()).await?;
 
     match meal {
-        Meal::Lunch => {
+        MealType::Lunch => {
             let maybe_recipe = recipes.choose(&mut rand::thread_rng());
             if let Some(recipe) = maybe_recipe {
                 let day: DayDb = sqlx::query_as(
-                    "INSERT INTO days (date, lunch_id)
-                     VALUES ($1, $2)
+                    "INSERT INTO days (date, lunch_id, lunch_is_cheat)
+                     VALUES ($1, $2, False)
                      ON CONFLICT (date) DO
-                     UPDATE SET lunch_id = $2
+                     UPDATE SET lunch_id = $2, lunch_is_cheat = False
                      RETURNING *",
                 )
                 .bind(date)
@@ -130,19 +142,19 @@ pub async fn randomize_meal<'a, E: PgExecutor<'a>>(
             } else {
                 Ok(Day {
                     date,
-                    lunch: Option::None,
-                    dinner: Option::None,
+                    lunch: Meal::Unset,
+                    dinner: Meal::Unset,
                 })
             }
         }
-        Meal::Dinner => {
+        MealType::Dinner => {
             let maybe_recipe = recipes.choose(&mut rand::thread_rng());
             if let Some(recipe) = maybe_recipe {
                 let day: DayDb = sqlx::query_as(
-                    "INSERT INTO days (date, dinner_id)
-                     VALUES ($1, $2)
+                    "INSERT INTO days (date, dinner_id, dinner_is_cheat)
+                     VALUES ($1, $2, False)
                      ON CONFLICT (date) DO
-                     UPDATE SET dinner_id = $2
+                     UPDATE SET dinner_id = $2, dinner_is_cheat = False
                      RETURNING *",
                 )
                 .bind(date)
@@ -154,22 +166,22 @@ pub async fn randomize_meal<'a, E: PgExecutor<'a>>(
             } else {
                 Ok(Day {
                     date,
-                    lunch: Option::None,
-                    dinner: Option::None,
+                    lunch: Meal::Unset,
+                    dinner: Meal::Unset,
                 })
             }
         }
-        Meal::Both => {
+        MealType::Both => {
             let recipes = (
                 recipes.choose(&mut rand::thread_rng()),
                 recipes.choose(&mut rand::thread_rng()),
             );
             if let (Some(lunch_recipe), Some(dinner_recipe)) = recipes {
                 let day: DayDb = sqlx::query_as(
-                    "INSERT INTO days (date, lunch_id, dinner_id)
-                     VALUES ($1, $2, $3)
+                    "INSERT INTO days (date, lunch_id, lunch_is_cheat, dinner_id, dinner_is_cheat)
+                     VALUES ($1, $2, False, $3, False)
                      ON CONFLICT (date) DO
-                     UPDATE SET lunch_id = $2, dinner_id = $3
+                     UPDATE SET lunch_id = $2, lunch_is_cheat = False, dinner_id = $3, dinner_is_cheat = False
                      RETURNING *",
                 )
                 .bind(date)
@@ -182,10 +194,61 @@ pub async fn randomize_meal<'a, E: PgExecutor<'a>>(
             } else {
                 Ok(Day {
                     date,
-                    lunch: Option::None,
-                    dinner: Option::None,
+                    lunch: Meal::Unset,
+                    dinner: Meal::Unset,
                 })
             }
+        }
+    }
+}
+
+pub async fn cheat_meal<'a, E: PgExecutor<'a>>(
+    exec: E,
+    date: Date,
+    meal: MealType,
+) -> anyhow::Result<Day> {
+    match meal {
+        MealType::Lunch => {
+            let day: DayDb = sqlx::query_as(
+                "INSERT INTO days (date, lunch_id, lunch_is_cheat)
+                 VALUES ($1, Null, True)
+                 ON CONFLICT (date) DO
+                 UPDATE SET lunch_id = Null, lunch_is_cheat = True
+                 RETURNING *",
+            )
+            .bind(date)
+            .fetch_one(exec.clone())
+            .await?;
+
+            Ok(get_day(exec, day.date).await?)
+        }
+        MealType::Dinner => {
+            let day: DayDb = sqlx::query_as(
+                "INSERT INTO days (date, dinner_id, dinner_is_cheat)
+                 VALUES ($1, Null, True)
+                 ON CONFLICT (date) DO
+                 UPDATE SET dinner_id = Null, dinner_is_cheat = True
+                 RETURNING *",
+            )
+            .bind(date)
+            .fetch_one(exec.clone())
+            .await?;
+
+            Ok(get_day(exec, day.date).await?)
+        }
+        MealType::Both => {
+            let day: DayDb = sqlx::query_as(
+                "INSERT INTO days (date, lunch_id, lunch_is_cheat, dinner_id, dinner_is_cheat)
+                 VALUES ($1, Null, True, Null, True)
+                 ON CONFLICT (date) DO
+                 UPDATE SET lunch_id = Null, lunch_is_cheat = True, lunch_id = Null, lunch_is_cheat = True
+                 RETURNING *",
+            )
+            .bind(date)
+            .fetch_one(exec.clone())
+            .await?;
+
+            Ok(get_day(exec, day.date).await?)
         }
     }
 }

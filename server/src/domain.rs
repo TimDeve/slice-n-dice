@@ -22,11 +22,20 @@ pub struct Recipe {
 pub struct Day {
     #[serde(with = "serde_date")]
     pub date: Date,
-    pub lunch: Option<Recipe>,
-    pub dinner: Option<Recipe>,
+    pub lunch: Meal,
+    pub dinner: Meal,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+#[serde(tag = "type")]
 pub enum Meal {
+    Recipe(Recipe),
+    Cheat,
+    Unset,
+}
+
+pub enum MealType {
     Lunch,
     Dinner,
     Both,

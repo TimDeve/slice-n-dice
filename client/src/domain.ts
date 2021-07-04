@@ -9,8 +9,22 @@ export interface NewRecipe {
   name: string
 }
 
+export interface RecipeMeal extends Recipe {
+  type: "recipe"
+}
+
+export interface CheatMeal {
+  type: "cheat"
+}
+
+export interface UnsetMeal {
+  type: "unset"
+}
+
+export type Meal = RecipeMeal | CheatMeal | UnsetMeal
+
 export interface Day {
   date: Dayjs
-  lunch: Recipe | null
-  dinner: Recipe | null
+  lunch: Meal
+  dinner: Meal
 }

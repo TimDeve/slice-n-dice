@@ -9,9 +9,10 @@ import Typography from "@material-ui/core/Typography"
 import CardContent from "@material-ui/core/CardContent"
 import CardActions from "@material-ui/core/CardActions"
 import CasinoIcon from "@material-ui/icons/Casino"
+import BeachAccessIcon from "@material-ui/icons/BeachAccess"
 import dayjs from "./dayjs"
 
-import { Recipe } from "./domain"
+import * as domain from "./domain"
 import * as gateway from "./gateway"
 
 function useInterval(callback: () => void, delay: number) {
@@ -60,20 +61,24 @@ interface MealProps {
   label: string
   isLoading: boolean
   error: unknown
-  meal: Recipe | null | undefined
+  meal: domain.Meal | undefined
   randomize: () => void
+  cheat: () => void
   style?: React.CSSProperties
 }
-function Meal({ label, isLoading, error, meal, randomize, style }: MealProps) {
+function Meal({ label, isLoading, error, meal, randomize,cheat, style }: MealProps) {
   function MealContent() {
     if (isLoading) return <LoadingText />
-    if (error) return <>Couldn't load meal</>
+    if (error || !meal) return <>Couldn't load meal</>
 
-    return (
-      <>
-        {meal?.name || <span style={{ color: "#a7a7a7" }}>Nothing yet...</span>}
-      </>
-    )
+    switch (meal.type) {
+      case "recipe":
+        return <>{meal.name}</>
+      case "cheat":
+        return <span style={{ color: "#dd2e44" }}>Cheat</span>
+      default:
+        return <span style={{ color: "#a7a7a7" }}>Nothing yet...</span>
+    }
   }
 
   return (
@@ -98,6 +103,14 @@ function Meal({ label, isLoading, error, meal, randomize, style }: MealProps) {
         >
           Randomize
         </Button>
+        {meal?.type !== "cheat" && <Button
+          type="submit"
+          size="small"
+          onClick={cheat}
+          startIcon={<BeachAccessIcon />}
+        >
+          Cheat
+        </Button>}
       </CardActions>
     </Card>
   )
@@ -116,12 +129,21 @@ function Day({ day }: { day: Dayjs }) {
     }
   )
 
-  const { mutateAsync: randomizeMeal } = useMutation(gateway.randomizeMeal, {
+  const { mutate: randomizeMeal } = useMutation(gateway.randomizeMeal, {
     onSuccess: () => {
       queryClient.invalidateQueries([gateway.getDay.name, date])
     },
     onError: () => {
       enqueueSnackbar("Failed to randomize meal", { variant: "error" })
+    },
+  })
+
+  const { mutate: cheatMeal } = useMutation(gateway.cheatMeal, {
+    onSuccess: () => {
+      queryClient.invalidateQueries([gateway.getDay.name, date])
+    },
+    onError: () => {
+      enqueueSnackbar("Failed to cheat meal", { variant: "error" })
     },
   })
 
@@ -151,6 +173,7 @@ function Day({ day }: { day: Dayjs }) {
           error={error}
           meal={data?.lunch}
           randomize={() => randomizeMeal({ isoDate: date, meal: "lunch" })}
+          cheat={() => cheatMeal({ isoDate: date, meal: "lunch" })}
           style={{ marginBottom: "16px" }}
         />
         <Meal
@@ -159,6 +182,7 @@ function Day({ day }: { day: Dayjs }) {
           error={error}
           meal={data?.dinner}
           randomize={() => randomizeMeal({ isoDate: date, meal: "dinner" })}
+          cheat={() => cheatMeal({ isoDate: date, meal: "dinner" })}
         />
       </div>
     </div>

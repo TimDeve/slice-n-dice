@@ -9,7 +9,7 @@ export default function Login() {
   const [password, setPassword] = useState("")
 
   const { enqueueSnackbar } = useSnackbar()
-  const { mutateAsync: logIn } = useMutation(gateway.logIn, {
+  const { mutate: logIn } = useMutation(gateway.logIn, {
     onSuccess: () => {},
     onError: () => {
       enqueueSnackbar("Failed to login", { variant: "error" })

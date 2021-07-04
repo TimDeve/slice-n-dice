@@ -5,7 +5,7 @@ use tide::{Body, Request, Response, Server, StatusCode};
 use time::Date;
 
 use crate::{
-    domain::{Meal, NewRecipe, Recipe},
+    domain::{MealType, NewRecipe, Recipe},
     repository, AppContext,
 };
 
@@ -17,9 +17,11 @@ pub fn init(app: &mut Server<AppContext>) {
 
     let mut days_api = app.at("/api/v0/days");
     days_api.at("/:date").get(get_day);
-    days_api.at("/:date/randomize").put(randomize_meal);
+    days_api.at("/:date/randomize").put(randomize_day);
     days_api.at("/:date/lunch/randomize").put(randomize_lunch);
     days_api.at("/:date/dinner/randomize").put(randomize_dinner);
+    days_api.at("/:date/lunch/cheat").put(cheat_lunch);
+    days_api.at("/:date/dinner/cheat").put(cheat_dinner);
 }
 
 #[derive(Serialize)]
@@ -50,21 +52,33 @@ async fn get_day(req: Request<AppContext>) -> tide::Result<Body> {
     Body::from_json(&day)
 }
 
-async fn randomize_meal(req: Request<AppContext>) -> tide::Result<Body> {
+async fn randomize_day(req: Request<AppContext>) -> tide::Result<Body> {
     let date = parse_iso_date_param(&req, "date")?;
-    let day = repository::randomize_meal(&req.state().pool, date, Meal::Both).await?;
+    let day = repository::randomize_meal(&req.state().pool, date, MealType::Both).await?;
     Body::from_json(&day)
 }
 
 async fn randomize_lunch(req: Request<AppContext>) -> tide::Result<Body> {
     let date = parse_iso_date_param(&req, "date")?;
-    let day = repository::randomize_meal(&req.state().pool, date, Meal::Lunch).await?;
+    let day = repository::randomize_meal(&req.state().pool, date, MealType::Lunch).await?;
     Body::from_json(&day)
 }
 
 async fn randomize_dinner(req: Request<AppContext>) -> tide::Result<Body> {
     let date = parse_iso_date_param(&req, "date")?;
-    let day = repository::randomize_meal(&req.state().pool, date, Meal::Dinner).await?;
+    let day = repository::randomize_meal(&req.state().pool, date, MealType::Dinner).await?;
+    Body::from_json(&day)
+}
+
+async fn cheat_lunch(req: Request<AppContext>) -> tide::Result<Body> {
+    let date = parse_iso_date_param(&req, "date")?;
+    let day = repository::cheat_meal(&req.state().pool, date, MealType::Lunch).await?;
+    Body::from_json(&day)
+}
+
+async fn cheat_dinner(req: Request<AppContext>) -> tide::Result<Body> {
+    let date = parse_iso_date_param(&req, "date")?;
+    let day = repository::cheat_meal(&req.state().pool, date, MealType::Dinner).await?;
     Body::from_json(&day)
 }
 
