@@ -2,6 +2,7 @@ import dayjs from "dayjs"
 import axios from "axios"
 
 import { Recipe, NewRecipe, Day, Meal } from "./domain"
+import { isAxiosResponseError } from "./axiosHelpers"
 
 export async function logIn({
   username,
@@ -25,7 +26,7 @@ export async function logOut() {
   try {
     await axios.post("/api/v0/logout")
   } catch (e) {
-    if (!(axios.isAxiosError(e) && e.response?.status === 401)) {
+    if (!(isAxiosResponseError(e) && e.response.status === 401)) {
       console.error(e)
       throw new Error("Failed to logout")
     }
