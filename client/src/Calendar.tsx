@@ -66,7 +66,15 @@ interface MealProps {
   cheat: () => void
   style?: React.CSSProperties
 }
-function Meal({ label, isLoading, error, meal, randomize,cheat, style }: MealProps) {
+function Meal({
+  label,
+  isLoading,
+  error,
+  meal,
+  randomize,
+  cheat,
+  style,
+}: MealProps) {
   function MealContent() {
     if (isLoading) return <LoadingText />
     if (error || !meal) return <>Couldn't load meal</>
@@ -103,14 +111,16 @@ function Meal({ label, isLoading, error, meal, randomize,cheat, style }: MealPro
         >
           Randomize
         </Button>
-        {meal?.type !== "cheat" && <Button
-          type="submit"
-          size="small"
-          onClick={cheat}
-          startIcon={<BeachAccessIcon />}
-        >
-          Cheat
-        </Button>}
+        {meal?.type !== "cheat" && (
+          <Button
+            type="submit"
+            size="small"
+            onClick={cheat}
+            startIcon={<BeachAccessIcon />}
+          >
+            Cheat
+          </Button>
+        )}
       </CardActions>
     </Card>
   )

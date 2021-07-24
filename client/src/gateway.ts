@@ -37,15 +37,17 @@ interface GetRecipesResponse {
   recipes: {
     id: string
     name: string
+    quick: boolean
   }[]
 }
 
 export async function getRecipes(): Promise<Recipe[]> {
   try {
     const res = await axios.get<GetRecipesResponse>("/api/v0/recipes")
-    return res.data.recipes.map(({ id, name }) => ({
+    return res.data.recipes.map(({ id, name, quick }) => ({
       id,
       name,
+      quick,
     }))
   } catch (e) {
     console.error(e)
@@ -53,10 +55,11 @@ export async function getRecipes(): Promise<Recipe[]> {
   }
 }
 
-export async function createRecipe({ name }: NewRecipe): Promise<void> {
+export async function createRecipe({ name, quick }: NewRecipe): Promise<void> {
   try {
     await axios.post("/api/v0/recipes", {
       name,
+      quick,
     })
   } catch (e) {
     console.error(e)

@@ -6,6 +6,8 @@ import {
   Typography,
   CardContent,
   CardActions,
+  Checkbox,
+  FormControlLabel,
   Button,
   Fab,
   makeStyles,
@@ -13,6 +15,7 @@ import {
 } from "@material-ui/core"
 import AddIcon from "@material-ui/icons/Add"
 import CloseIcon from "@material-ui/icons/Close"
+import TimerIcon from "@material-ui/icons/Timer"
 import { useSnackbar } from "notistack"
 
 import * as gateway from "./gateway"
@@ -26,6 +29,9 @@ const useStyles = makeStyles(theme => ({
   },
   recipeItemAlert: () => {
     return { color: theme.palette.text.secondary }
+  },
+  field: {
+    marginBottom: theme.spacing(1),
   },
 }))
 
@@ -56,10 +62,12 @@ interface NewRecipeFormProps {
   onSuccess: () => void
 }
 function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
+  const styles = useStyles({})
   const { enqueueSnackbar } = useSnackbar()
   const [name, setName] = useState("")
+  const [quick, setQuick] = useState<boolean>(false)
   const queryClient = useQueryClient()
-  const { mutateAsync: createRecipe } = useMutation(gateway.createRecipe, {
+  const { mutate: createRecipe } = useMutation(gateway.createRecipe, {
     onSuccess: () => {
       queryClient.invalidateQueries(gateway.getRecipes.name)
       setName("")
@@ -69,28 +77,42 @@ function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
     },
   })
 
+  function submitable(): boolean {
+    return !!name
+  }
+
   return (
     <Card style={{ marginTop: "14px", marginBottom: "14px" }}>
       <form
         onSubmit={e => {
           e.preventDefault()
-          if (name) {
-            createRecipe({
-              name,
-            })
-          }
+          createRecipe({
+            name,
+            quick,
+          })
         }}
       >
         <CardContent>
           <TextField
+            className={styles.field}
             value={name}
             name="name"
-            placeholder="Recipe Name"
+            label="Recipe Name"
             onChange={e => setName(e.target.value)}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={quick}
+                name="quick"
+                onChange={e => setQuick(e.target.checked)}
+              />
+            }
+            label="Under 30 minutes?"
           />
         </CardContent>
         <CardActions>
-          <Button type="submit" size="small">
+          <Button type="submit" size="small" disabled={!submitable()}>
             Add
           </Button>
         </CardActions>
@@ -122,10 +144,10 @@ function RecipeList() {
   )
 }
 
-function RecipeItem({ name, id }: Recipe) {
+function RecipeItem({ name, quick, id }: Recipe) {
   const { enqueueSnackbar } = useSnackbar()
   const queryClient = useQueryClient()
-  const { mutateAsync: deleteRecipe } = useMutation(gateway.deleteRecipe, {
+  const { mutate: deleteRecipe } = useMutation(gateway.deleteRecipe, {
     onSuccess: () => {
       queryClient.invalidateQueries(gateway.getRecipes.name)
     },
@@ -137,9 +159,26 @@ function RecipeItem({ name, id }: Recipe) {
   return (
     <Card style={{ marginTop: "14px", marginBottom: "14px" }}>
       <CardContent>
-        <Typography variant="h5" component="p" style={{ fontSize: "1.286em" }}>
+        <Typography
+          variant="h5"
+          component="div"
+          style={{ fontSize: "1.286em" }}
+        >
           {name}
         </Typography>
+        {quick && (
+          <>
+            <TimerIcon
+              style={{
+                width: "16px",
+                marginRight: "3px",
+                marginLeft: "-3px",
+                verticalAlign: "bottom",
+              }}
+            />
+            <Typography variant="caption">Under 30 minutes</Typography>
+          </>
+        )}
       </CardContent>
       <CardActions>
         <Button size="small" onClick={() => deleteRecipe(id)}>

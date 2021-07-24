@@ -6,7 +6,6 @@ import Card from "@material-ui/core/Card"
 import CardActions from "@material-ui/core/CardActions"
 import CardContent from "@material-ui/core/CardContent"
 import Container from "@material-ui/core/Container"
-import FormControl from "@material-ui/core/FormControl"
 import TextField from "@material-ui/core/TextField"
 
 import * as gateway from "./gateway"
@@ -25,7 +24,7 @@ export default function Login() {
 
   return (
     <Container maxWidth="xs">
-      <Card style={{ marginTop: "36px", paddingBottom: "4px" }} >
+      <Card style={{ marginTop: "36px", paddingBottom: "4px" }}>
         <form
           onSubmit={e => {
             e.preventDefault()
@@ -57,7 +56,9 @@ export default function Login() {
             />
           </CardContent>
           <CardActions>
-            <Button variant="contained" color="primary" fullWidth type="submit">Login</Button>
+            <Button variant="contained" color="primary" fullWidth type="submit">
+              Login
+            </Button>
           </CardActions>
         </form>
       </Card>

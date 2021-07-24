@@ -8,6 +8,7 @@ use crate::serde_date;
 #[serde(rename_all = "camelCase")]
 pub struct NewRecipe {
     pub name: String,
+    pub quick: bool,
 }
 
 #[derive(Serialize, sqlx::FromRow)]
@@ -15,6 +16,7 @@ pub struct NewRecipe {
 pub struct Recipe {
     pub id: Uuid,
     pub name: String,
+    pub quick: bool,
 }
 
 #[derive(Serialize)]

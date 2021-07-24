@@ -3,10 +3,12 @@ import { Dayjs } from "dayjs"
 export interface Recipe {
   id: string
   name: string
+  quick: boolean
 }
 
 export interface NewRecipe {
   name: string
+  quick: boolean
 }
 
 export interface RecipeMeal extends Recipe {

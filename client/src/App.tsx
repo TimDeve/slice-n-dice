@@ -32,7 +32,7 @@ const theme = createMuiTheme({
       main: "#DD2E44",
     },
     secondary: {
-      main: "#FFFFFF",
+      main: "#F44336",
     },
   },
 })
@@ -91,7 +91,11 @@ function TopBar() {
         )}
       </Toolbar>
       {["calendar", "recipes"].indexOf(currentPage) >= 0 && (
-        <Tabs value={currentPage} aria-label="simple tabs example">
+        <Tabs
+          TabIndicatorProps={{ style: { backgroundColor: "#FFFFFF" } }}
+          value={currentPage}
+          aria-label="simple tabs example"
+        >
           <Tab label="Calendar" value="calendar" component={Link} to={"/"} />
           <Tab
             label="Recipes"
