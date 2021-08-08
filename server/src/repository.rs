@@ -8,14 +8,22 @@ use crate::domain::{Day, Meal, MealType, NewRecipe, Recipe};
 pub trait PgExecutor<'a>: Executor<'a, Database = Postgres> + Clone {}
 impl<'a, T> PgExecutor<'a> for T where T: Executor<'a, Database = Postgres> + Clone {}
 
-pub async fn get_recipes<'a, E: PgExecutor<'a>>(exec: E) -> anyhow::Result<Vec<Recipe>> {
-    let recipes = sqlx::query_as(
+pub async fn get_recipes<'a, E: PgExecutor<'a>>(
+    exec: E,
+    quick: bool,
+) -> anyhow::Result<Vec<Recipe>> {
+    let query = if quick {
         "SELECT *
          FROM recipes
-         ORDER BY name",
-    )
-    .fetch_all(exec)
-    .await?;
+         WHERE quick=true
+         ORDER BY name"
+    } else {
+        "SELECT *
+         FROM recipes
+         ORDER BY name"
+    };
+
+    let recipes = sqlx::query_as(query).fetch_all(exec).await?;
 
     Ok(recipes)
 }
@@ -120,8 +128,9 @@ pub async fn randomize_meal<'a, E: PgExecutor<'a>>(
     exec: E,
     date: Date,
     meal: MealType,
+    quick: bool,
 ) -> anyhow::Result<Day> {
-    let recipes = get_recipes(exec.clone()).await?;
+    let recipes = get_recipes(exec.clone(), quick).await?;
 
     match meal {
         MealType::Lunch => {

@@ -1,6 +1,6 @@
 use std::{error::Error, fmt::Display};
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tide::{Body, Request, Response, Server, StatusCode};
 use time::Date;
 
@@ -30,7 +30,7 @@ struct GetRecipesResponse {
 }
 
 async fn get_recipes(req: Request<AppContext>) -> tide::Result<Body> {
-    let recipes = repository::get_recipes(&req.state().pool).await?;
+    let recipes = repository::get_recipes(&req.state().pool, false).await?;
     Body::from_json(&GetRecipesResponse { recipes })
 }
 
@@ -52,21 +52,33 @@ async fn get_day(req: Request<AppContext>) -> tide::Result<Body> {
     Body::from_json(&day)
 }
 
+#[derive(Deserialize)]
+struct RandomizeQuery {
+    #[serde(default)]
+    quick: bool,
+}
+
 async fn randomize_day(req: Request<AppContext>) -> tide::Result<Body> {
+    let query: RandomizeQuery = req.query()?;
     let date = parse_iso_date_param(&req, "date")?;
-    let day = repository::randomize_meal(&req.state().pool, date, MealType::Both).await?;
+    let day =
+        repository::randomize_meal(&req.state().pool, date, MealType::Both, query.quick).await?;
     Body::from_json(&day)
 }
 
 async fn randomize_lunch(req: Request<AppContext>) -> tide::Result<Body> {
+    let query: RandomizeQuery = req.query()?;
     let date = parse_iso_date_param(&req, "date")?;
-    let day = repository::randomize_meal(&req.state().pool, date, MealType::Lunch).await?;
+    let day =
+        repository::randomize_meal(&req.state().pool, date, MealType::Lunch, query.quick).await?;
     Body::from_json(&day)
 }
 
 async fn randomize_dinner(req: Request<AppContext>) -> tide::Result<Body> {
+    let query: RandomizeQuery = req.query()?;
     let date = parse_iso_date_param(&req, "date")?;
-    let day = repository::randomize_meal(&req.state().pool, date, MealType::Dinner).await?;
+    let day =
+        repository::randomize_meal(&req.state().pool, date, MealType::Dinner, query.quick).await?;
     Body::from_json(&day)
 }
 

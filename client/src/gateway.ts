@@ -100,13 +100,17 @@ export async function getDay(isoDate: string): Promise<Day> {
 export async function randomizeMeal({
   isoDate,
   meal,
+  quick = false,
 }: {
   isoDate: string
   meal: "lunch" | "dinner"
+  quick?: boolean
 }): Promise<Day> {
   try {
     const res = await axios.put<GetDayResponse>(
-      `/api/v0/days/${isoDate}/${meal}/randomize`
+      `/api/v0/days/${isoDate}/${meal}/randomize`,
+      null,
+      { params: { quick } }
     )
     const { date, lunch, dinner } = res.data
     return {

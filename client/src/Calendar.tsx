@@ -182,7 +182,9 @@ function Day({ day }: { day: Dayjs }) {
           isLoading={isLoading}
           error={error}
           meal={data?.lunch}
-          randomize={() => randomizeMeal({ isoDate: date, meal: "lunch" })}
+          randomize={() =>
+            randomizeMeal({ isoDate: date, meal: "lunch", quick: true })
+          }
           cheat={() => cheatMeal({ isoDate: date, meal: "lunch" })}
           style={{ marginBottom: "16px" }}
         />
