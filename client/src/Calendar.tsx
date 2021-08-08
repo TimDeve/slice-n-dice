@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react"
 import { Dayjs } from "dayjs"
 import { useSnackbar } from "notistack"
+import { Link, useParams } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "react-query"
 import Container from "@material-ui/core/Container"
 import Card from "@material-ui/core/Card"
@@ -14,6 +15,43 @@ import dayjs from "./dayjs"
 
 import * as domain from "./domain"
 import * as gateway from "./gateway"
+
+function NavBar({ weekStart }: { weekStart: Dayjs }) {
+  const buttonClass =
+    "MuiButton-outlined MuiButton-outlinedSizeLarge MuiButton-root MuiButton-textPrimary"
+
+  const thisWeekMonday = dayjs().weekday(0)
+  const lastMonday = weekStart.subtract(7, "day").format("YYYY-MM-DD")
+  const nextMonday = weekStart.add(7, "day").format("YYYY-MM-DD")
+
+  const lastMondayIsThisMonday = thisWeekMonday.diff(lastMonday, "day") === 0
+  const nextMondayIsThisMonday = thisWeekMonday.diff(nextMonday, "day") === 0
+
+  return (
+    <div
+      style={{
+        paddingLeft: "16px",
+        marginTop: "16px",
+        display: "flex",
+        justifyContent: "space-between",
+        width: "100%",
+      }}
+    >
+      <Link
+        to={lastMondayIsThisMonday ? "/" : "/calendar/" + lastMonday}
+        className={buttonClass}
+      >
+        Prev
+      </Link>
+      <Link
+        to={nextMondayIsThisMonday ? "/" : "/calendar/" + nextMonday}
+        className={buttonClass}
+      >
+        Next
+      </Link>
+    </div>
+  )
+}
 
 function useInterval(callback: () => void, delay: number) {
   const savedCallback = useRef<() => void>()
@@ -202,10 +240,16 @@ function Day({ day }: { day: Dayjs }) {
 }
 
 export default function Calendar() {
+  const { weekStart } = useParams<{ weekStart?: string }>()
+  const weekStartDay = dayjs(weekStart).weekday(0)
+
   return (
     <Container maxWidth="sm" style={{ paddingLeft: 0 }}>
+      <NavBar weekStart={weekStartDay} />
       {[...Array(7).keys()].map(dayOfTheWeek => {
-        return <Day key={dayOfTheWeek} day={dayjs().weekday(dayOfTheWeek)} />
+        return (
+          <Day key={dayOfTheWeek} day={weekStartDay.weekday(dayOfTheWeek)} />
+        )
       })}
     </Container>
   )

@@ -174,6 +174,7 @@ function RecipeItem({ name, quick, id }: Recipe) {
                 marginRight: "3px",
                 marginLeft: "-3px",
                 verticalAlign: "bottom",
+                marginBottom: "-2px",
               }}
             />
             <Typography variant="caption">Under 30 minutes</Typography>

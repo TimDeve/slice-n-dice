@@ -67,7 +67,8 @@ export default function App() {
 function TopBar() {
   const { isLoggedIn } = useAuth()
 
-  const isCalendarPage = useRouteMatch({ path: "/", exact: true })!!
+  const isRootPage = useRouteMatch({ path: "/", exact: true })!!
+  const isCalendarPage = useRouteMatch({ path: "/calendar" })!! || isRootPage
   const isRecipesPage = useRouteMatch({ path: "/recipes", exact: true })!!
 
   let currentPage = ""
@@ -119,6 +120,9 @@ function Routes() {
         {isLoggedIn ? (
           <>
             <Route exact path="/">
+              <Calendar />
+            </Route>
+            <Route path="/calendar/:weekStart">
               <Calendar />
             </Route>
             <Route path="/recipes">
