@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react"
 import { Dayjs } from "dayjs"
 import { useSnackbar } from "notistack"
-import { Link, useParams } from "react-router-dom"
+import { Link, LinkProps, useParams } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "react-query"
 import Container from "@material-ui/core/Container"
 import Card from "@material-ui/core/Card"
@@ -16,10 +16,20 @@ import dayjs from "./dayjs"
 import * as domain from "./domain"
 import * as gateway from "./gateway"
 
-function NavBar({ weekStart }: { weekStart: Dayjs }) {
+function ButtonLink(props: LinkProps) {
   const buttonClass =
     "MuiButton-outlined MuiButton-outlinedSizeLarge MuiButton-root MuiButton-textPrimary"
 
+  return (
+    <Link
+      className={buttonClass}
+      {...props}
+      style={{ "textDecoration": "none" }}
+    />
+  )
+}
+
+function ActionBar({ weekStart }: { weekStart: Dayjs }) {
   const thisWeekMonday = dayjs().weekday(0)
   const lastMonday = weekStart.subtract(7, "day").format("YYYY-MM-DD")
   const nextMonday = weekStart.add(7, "day").format("YYYY-MM-DD")
@@ -37,18 +47,12 @@ function NavBar({ weekStart }: { weekStart: Dayjs }) {
         width: "100%",
       }}
     >
-      <Link
-        to={lastMondayIsThisMonday ? "/" : "/calendar/" + lastMonday}
-        className={buttonClass}
-      >
+      <ButtonLink to={lastMondayIsThisMonday ? "/" : "/calendar/" + lastMonday}>
         Prev
-      </Link>
-      <Link
-        to={nextMondayIsThisMonday ? "/" : "/calendar/" + nextMonday}
-        className={buttonClass}
-      >
+      </ButtonLink>
+      <ButtonLink to={nextMondayIsThisMonday ? "/" : "/calendar/" + nextMonday}>
         Next
-      </Link>
+      </ButtonLink>
     </div>
   )
 }
@@ -245,7 +249,7 @@ export default function Calendar() {
 
   return (
     <Container maxWidth="sm" style={{ paddingLeft: 0 }}>
-      <NavBar weekStart={weekStartDay} />
+      <ActionBar weekStart={weekStartDay} />
       {[...Array(7).keys()].map(dayOfTheWeek => {
         return (
           <Day key={dayOfTheWeek} day={weekStartDay.weekday(dayOfTheWeek)} />
