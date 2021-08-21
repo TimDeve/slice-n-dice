@@ -1,9 +1,9 @@
-use rand::seq::SliceRandom;
 use sqlx::{Executor, Postgres};
 use time::Date;
 use uuid::Uuid;
 
 use crate::domain::{Day, Meal, MealType, NewRecipe, Recipe};
+
 
 pub trait PgExecutor<'a>: Executor<'a, Database = Postgres> + Clone {}
 impl<'a, T> PgExecutor<'a> for T where T: Executor<'a, Database = Postgres> + Clone {}
@@ -38,6 +38,32 @@ pub async fn get_recipe<'a, E: PgExecutor<'a>>(
          WHERE id = $1",
     )
     .bind(id)
+    .fetch_optional(exec)
+    .await?;
+
+    Ok(recipe)
+}
+
+pub async fn get_random_recipe<'a, E: PgExecutor<'a>>(
+    exec: E,
+    quick: bool
+) -> anyhow::Result<Option<Recipe>> {
+    let recipe = sqlx::query_as("
+      WITH all_meals AS (
+          SELECT lunch_id AS id FROM days WHERE lunch_id IS NOT NULL
+          UNION ALL
+          SELECT dinner_id AS id FROM days WHERE dinner_id IS NOT NULL
+      ), frequencies AS (
+          SELECT id, count(id) AS frequency FROM all_meals GROUP BY id
+      )
+      SELECT r.*, coalesce(f.frequency, 0.5) AS frequency FROM frequencies f
+      FULL OUTER JOIN recipes r ON f.id = r.id
+      WHERE quick = true
+         OR quick = $1
+      ORDER BY log(random()) / coalesce(f.frequency, 0.5)
+      LIMIT 1
+    ")
+    .bind(quick)
     .fetch_optional(exec)
     .await?;
 
@@ -130,11 +156,9 @@ pub async fn randomize_meal<'a, E: PgExecutor<'a>>(
     meal: MealType,
     quick: bool,
 ) -> anyhow::Result<Day> {
-    let recipes = get_recipes(exec.clone(), quick).await?;
-
     match meal {
         MealType::Lunch => {
-            let maybe_recipe = recipes.choose(&mut rand::thread_rng());
+            let maybe_recipe = get_random_recipe(exec.clone(), quick).await?;
             if let Some(recipe) = maybe_recipe {
                 let day: DayDb = sqlx::query_as(
                     "INSERT INTO days (date, lunch_id, lunch_is_cheat)
@@ -158,7 +182,7 @@ pub async fn randomize_meal<'a, E: PgExecutor<'a>>(
             }
         }
         MealType::Dinner => {
-            let maybe_recipe = recipes.choose(&mut rand::thread_rng());
+            let maybe_recipe = get_random_recipe(exec.clone(), quick).await?;
             if let Some(recipe) = maybe_recipe {
                 let day: DayDb = sqlx::query_as(
                     "INSERT INTO days (date, dinner_id, dinner_is_cheat)
@@ -183,8 +207,8 @@ pub async fn randomize_meal<'a, E: PgExecutor<'a>>(
         }
         MealType::Both => {
             let recipes = (
-                recipes.choose(&mut rand::thread_rng()),
-                recipes.choose(&mut rand::thread_rng()),
+                get_random_recipe(exec.clone(), quick).await?,
+                get_random_recipe(exec.clone(), quick).await?
             );
             if let (Some(lunch_recipe), Some(dinner_recipe)) = recipes {
                 let day: DayDb = sqlx::query_as(
