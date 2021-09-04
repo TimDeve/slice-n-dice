@@ -29,8 +29,25 @@ struct GetRecipesResponse {
     recipes: Vec<Recipe>,
 }
 
+#[derive(Deserialize)]
+struct GetRecipesQuery {
+    #[serde(default)]
+    search: Option<String>,
+    #[serde(default)]
+    limit: Option<i64>,
+    #[serde(default)]
+    quick: Option<bool>,
+}
+
 async fn get_recipes(req: Request<AppContext>) -> tide::Result<Body> {
-    let recipes = repository::get_recipes(&req.state().pool, false).await?;
+    let query: GetRecipesQuery = req.query()?;
+    let recipes = repository::get_recipes(
+        &req.state().pool,
+        query.search.as_deref(),
+        query.limit,
+        query.quick,
+    )
+    .await?;
     Body::from_json(&GetRecipesResponse { recipes })
 }
 
