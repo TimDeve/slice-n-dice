@@ -1,6 +1,6 @@
+mod days;
 mod domain;
-mod handlers;
-mod repository;
+mod recipes;
 mod serde_date;
 
 use anyhow::{Context, Result};
@@ -24,7 +24,8 @@ async fn main() -> Result<()> {
     tide::log::start();
     let mut app = Server::with_state(AppContext { pool });
 
-    handlers::init(&mut app);
+    days::handlers::init(&mut app);
+    recipes::handlers::init(&mut app);
 
     app.listen("127.0.0.1:8091").await?;
 

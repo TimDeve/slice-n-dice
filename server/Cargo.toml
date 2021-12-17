@@ -12,4 +12,5 @@ sqlx      = { version = "0.5", features = ["runtime-async-std-native-tls", "post
 uuid      = { version = "0.8", features = ["serde"] }
 tide      = "0.16"
 time      = "0.2"
+sea-query = "0.20"
 
