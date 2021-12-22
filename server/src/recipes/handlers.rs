@@ -1,13 +1,10 @@
-use std::{error::Error, fmt::Display};
-
 use serde::{Deserialize, Serialize};
 use tide::{Body, Request, Response, Server, StatusCode};
 
-use crate::{
-    domain::{NewRecipe, Recipe},
-    recipes::repository,
-    AppContext,
-};
+use crate::domain::{NewRecipe, Recipe};
+use crate::recipes::repository;
+use crate::tide_utils::parse_param;
+use crate::AppContext;
 
 pub fn init(app: &mut Server<AppContext>) {
     let mut recipes_api = app.at("/api/v0/recipes");
@@ -43,27 +40,16 @@ async fn get_recipes(req: Request<AppContext>) -> tide::Result<Body> {
     Body::from_json(&GetRecipesResponse { recipes })
 }
 
-async fn create_recipe(mut req: Request<AppContext>) -> tide::Result<Body> {
+async fn create_recipe(mut req: Request<AppContext>) -> tide::Result<Response> {
     let new_recipe: NewRecipe = req.body_json().await?;
     let created_recipe = repository::create_recipe(&req.state().pool, new_recipe).await?;
-    Body::from_json(&created_recipe)
+
+    let body = Body::from_json(&created_recipe)?;
+    Ok(Response::builder(StatusCode::Created).body(body).build())
 }
 
 async fn delete_recipe(req: Request<AppContext>) -> tide::Result<Response> {
     let recipe_id = parse_param(&req, "id")?;
     repository::delete_recipe(&req.state().pool, recipe_id).await?;
     Ok(Response::new(StatusCode::NoContent))
-}
-
-fn parse_param<T>(req: &Request<AppContext>, param: &str) -> Result<T, tide::Error>
-where
-    T: std::str::FromStr,
-    <T as std::str::FromStr>::Err: Display + Sync + Send + Error + 'static,
-{
-    req.param(param)?.parse().map_err(|err| {
-        tide::Error::new(
-            StatusCode::BadRequest,
-            anyhow::Error::new(err).context(format!("Failed to parse url param '{}'", param)),
-        )
-    })
 }

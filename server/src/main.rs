@@ -1,7 +1,9 @@
 mod days;
 mod domain;
+mod foods;
 mod recipes;
 mod serde_date;
+mod tide_utils;
 
 use anyhow::{Context, Result};
 use sqlx::postgres::PgPool;
@@ -26,6 +28,7 @@ async fn main() -> Result<()> {
 
     days::handlers::init(&mut app);
     recipes::handlers::init(&mut app);
+    foods::handlers::init(&mut app);
 
     app.listen("127.0.0.1:8091").await?;
 

@@ -11,7 +11,7 @@ where
     serializer.serialize_str(&s)
 }
 
-pub fn _deserialize<'de, D>(deserializer: D) -> Result<Date, D::Error>
+pub fn deserialize<'de, D>(deserializer: D) -> Result<Date, D::Error>
 where
     D: Deserializer<'de>,
 {
