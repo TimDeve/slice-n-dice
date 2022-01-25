@@ -1,25 +1,25 @@
+import AddIcon from "@mui/icons-material/Add"
+import CloseIcon from "@mui/icons-material/Close"
+import TimerIcon from "@mui/icons-material/Timer"
+import {
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Checkbox,
+  Container,
+  Fab,
+  FormControlLabel,
+  TextField,
+  Typography,
+} from "@mui/material"
+import makeStyles from "@mui/styles/makeStyles"
+import { useSnackbar } from "notistack"
 import { useEffect, useRef, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "react-query"
-import {
-  Container,
-  Card,
-  Typography,
-  CardContent,
-  CardActions,
-  Checkbox,
-  FormControlLabel,
-  Button,
-  Fab,
-  makeStyles,
-  TextField,
-} from "@material-ui/core"
-import AddIcon from "@material-ui/icons/Add"
-import CloseIcon from "@material-ui/icons/Close"
-import TimerIcon from "@material-ui/icons/Timer"
-import { useSnackbar } from "notistack"
 
-import * as gateway from "./gateway"
 import { Recipe } from "./domain"
+import * as gateway from "./gateway"
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -100,6 +100,7 @@ function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
             label="Recipe Name"
             onChange={e => setName(e.target.value)}
           />
+          <br />
           <FormControlLabel
             control={
               <Checkbox
@@ -137,6 +138,14 @@ function RecipeList() {
 
   return (
     <>
+      {data.length == 0 && (
+        <Typography
+          variant="h5"
+          style={{ fontSize: "1.286em", color: "#a7a7a7", marginTop: "16px" }}
+        >
+          Nothing yet...
+        </Typography>
+      )}
       {data.map(recipe => (
         <RecipeItem key={recipe.id} {...recipe} />
       ))}

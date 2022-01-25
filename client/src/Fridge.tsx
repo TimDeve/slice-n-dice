@@ -1,21 +1,21 @@
-import AddIcon from "@material-ui/icons/Add"
-import Button from "@material-ui/core/Button/Button"
-import Card from "@material-ui/core/Card/Card"
-import CardActions from "@material-ui/core/CardActions/CardActions"
-import CardContent from "@material-ui/core/CardContent/CardContent"
-import CloseIcon from "@material-ui/icons/Close"
-import Container from "@material-ui/core/Container/Container"
-import Fab from "@material-ui/core/Fab/Fab"
-import TextField from "@material-ui/core/TextField/TextField"
-import Typography from "@material-ui/core/Typography/Typography"
-import { DatePicker } from "@material-ui/pickers/DatePicker/DatePicker"
-import { useMutation, useQuery, useQueryClient } from "react-query"
-import { makeStyles } from "@material-ui/core"
+import AddIcon from "@mui/icons-material/Add"
+import CloseIcon from "@mui/icons-material/Close"
+import DatePicker from "@mui/lab/DatePicker/DatePicker"
+import Button from "@mui/material/Button/Button"
+import Card from "@mui/material/Card/Card"
+import CardActions from "@mui/material/CardActions/CardActions"
+import CardContent from "@mui/material/CardContent/CardContent"
+import Container from "@mui/material/Container/Container"
+import Fab from "@mui/material/Fab/Fab"
+import TextField from "@mui/material/TextField/TextField"
+import Typography from "@mui/material/Typography/Typography"
+import makeStyles from "@mui/styles/makeStyles"
+import dayjs, { Dayjs } from "dayjs"
 import { useEffect, useRef, useState } from "react"
+import { useMutation, useQuery, useQueryClient } from "react-query"
 
-import * as gateway from "./gateway"
-import dayjs, { Dayjs } from "./dayjs"
 import { Food } from "./domain"
+import * as gateway from "./gateway"
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -40,24 +40,22 @@ const useStyles = makeStyles(theme => ({
   },
   field: {
     display: "block",
-    marginBottom: theme.spacing(2) 
-  }
+    marginBottom: theme.spacing(2),
+  },
 }))
 
-interface NewFoodFormProps {
-  onSuccess: () => void
-}
-function NewFoodForm({ onSuccess }: NewFoodFormProps) {
+function NewFoodForm() {
   const styles = useStyles()
   const queryClient = useQueryClient()
+  const [name, setName] = useState("")
+  const [date, setDate] = useState<Dayjs | null>(dayjs())
   const { mutateAsync: createFood } = useMutation(gateway.createFood, {
     onSuccess: () => {
       queryClient.invalidateQueries(gateway.getFoods.name)
-      onSuccess()
+      setName("")
+      setDate(dayjs())
     },
   })
-  const [name, setName] = useState("")
-  const [date, setDate] = useState<Dayjs | null>(dayjs())
 
   return (
     <Card style={{ marginTop: "14px", marginBottom: "14px" }}>
@@ -75,18 +73,19 @@ function NewFoodForm({ onSuccess }: NewFoodFormProps) {
         <CardContent>
           <TextField
             value={name}
+            label="Food Name"
             name="name"
-            placeholder="Food Name"
             onChange={e => setName(e.target.value)}
             className={styles.field}
           />
           <DatePicker
-            name="date"
             value={date}
+            label="Date"
             onChange={newDate => {
-              setDate(newDate)
+              setDate(newDate as Dayjs)
             }}
             className={styles.field}
+            renderInput={props => <TextField {...props} />}
           />
         </CardContent>
         <CardActions>
@@ -115,6 +114,14 @@ function FoodList() {
 
   return (
     <>
+      {data.length == 0 && (
+        <Typography
+          variant="h5"
+          style={{ fontSize: "1.286em", color: "#a7a7a7", marginTop: "16px" }}
+        >
+          Nothing yet...
+        </Typography>
+      )}
       {data.map(food => (
         <FoodItem key={food.id} {...food} />
       ))}
@@ -137,7 +144,11 @@ function FoodItem({ name, bestBeforeDate, id }: Food) {
         <Typography className={styles.foodItemAlert} gutterBottom>
           Best Before: {bestBeforeDate.format("ll")}
         </Typography>
-        <Typography variant="h5" component="p">
+        <Typography
+          variant="h5"
+          component="div"
+          style={{ fontSize: "1.286em" }}
+        >
           {name}
         </Typography>
       </CardContent>
@@ -174,7 +185,7 @@ export default function Fridge() {
   return (
     <>
       <Container maxWidth="sm">
-        {newFoodOpen && <NewFoodForm onSuccess={() => setNewFoodOpen(false)} />}
+        {newFoodOpen && <NewFoodForm />}
         <FoodList />
       </Container>
       <Fab

@@ -1,33 +1,21 @@
-import React, { useState, useRef, useEffect } from "react"
-import { Dayjs } from "dayjs"
+import BeachAccessIcon from "@mui/icons-material/BeachAccess"
+import CasinoIcon from "@mui/icons-material/Casino"
+import Button from "@mui/material/Button"
+import Card from "@mui/material/Card"
+import CardActions from "@mui/material/CardActions"
+import CardContent from "@mui/material/CardContent"
+import Container from "@mui/material/Container"
+import Typography from "@mui/material/Typography"
+import dayjs, { Dayjs } from "dayjs"
 import { useSnackbar } from "notistack"
-import { Link, LinkProps, useParams } from "react-router-dom"
+import React from "react"
 import { useMutation, useQuery, useQueryClient } from "react-query"
-import Container from "@material-ui/core/Container"
-import Card from "@material-ui/core/Card"
-import Button from "@material-ui/core/Button"
-import Typography from "@material-ui/core/Typography"
-import CardContent from "@material-ui/core/CardContent"
-import CardActions from "@material-ui/core/CardActions"
-import CasinoIcon from "@material-ui/icons/Casino"
-import BeachAccessIcon from "@material-ui/icons/BeachAccess"
-import dayjs from "./dayjs"
+import { useParams } from "react-router-dom"
 
 import * as domain from "./domain"
 import * as gateway from "./gateway"
-
-function ButtonLink(props: LinkProps) {
-  const buttonClass =
-    "MuiButton-outlined MuiButton-outlinedSizeLarge MuiButton-root MuiButton-textPrimary"
-
-  return (
-    <Link
-      className={buttonClass}
-      {...props}
-      style={{ textDecoration: "none" }}
-    />
-  )
-}
+import ButtonLink from "./shared/ButtonLink"
+import LoadingText from "./shared/LoadingText"
 
 function ActionBar({ weekStart }: { weekStart: Dayjs }) {
   const thisWeekMonday = dayjs().weekday(0)
@@ -47,56 +35,20 @@ function ActionBar({ weekStart }: { weekStart: Dayjs }) {
         width: "100%",
       }}
     >
-      <ButtonLink to={lastMondayIsThisMonday ? "/" : "/calendar/" + lastMonday}>
+      <ButtonLink
+        variant="outlined"
+        to={lastMondayIsThisMonday ? "/" : "/calendar/" + lastMonday}
+      >
         Prev
       </ButtonLink>
-      <ButtonLink to={nextMondayIsThisMonday ? "/" : "/calendar/" + nextMonday}>
+      <ButtonLink
+        variant="outlined"
+        to={nextMondayIsThisMonday ? "/" : "/calendar/" + nextMonday}
+      >
         Next
       </ButtonLink>
     </div>
   )
-}
-
-function useInterval(callback: () => void, delay: number) {
-  const savedCallback = useRef<() => void>()
-
-  useEffect(() => {
-    savedCallback.current = callback
-  }, [callback])
-
-  useEffect(() => {
-    let id = setInterval(() => {
-      savedCallback.current?.()
-    }, delay)
-    return () => clearInterval(id)
-  }, [delay])
-}
-
-function LoadingText() {
-  const nonBreakingSpace = "\u00a0"
-  const [hidden, setHidden] = useState(true)
-  const [ellipsis, setEllipsis] = useState("...")
-
-  useInterval(() => {
-    if (hidden) {
-      setHidden(false)
-    } else {
-      setEllipsis(elli => {
-        switch (elli) {
-          case ".":
-            return ".."
-          case "..":
-            return "..."
-          case "...":
-            return ""
-          default:
-            return "."
-        }
-      })
-    }
-  }, 500)
-
-  return <>{hidden ? nonBreakingSpace : `Loading${ellipsis}`}</>
 }
 
 interface MealProps {
@@ -146,6 +98,7 @@ function Meal({
       </CardContent>
       <CardActions>
         <Button
+          color="inherit"
           type="submit"
           size="small"
           onClick={randomize}
@@ -155,6 +108,7 @@ function Meal({
         </Button>
         {meal?.type !== "cheat" && (
           <Button
+            color="inherit"
             type="submit"
             size="small"
             onClick={cheat}

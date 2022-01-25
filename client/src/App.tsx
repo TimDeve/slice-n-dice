@@ -1,35 +1,45 @@
-import React from "react"
-import { QueryClient, QueryClientProvider } from "react-query"
-import { MuiPickersUtilsProvider } from "@material-ui/pickers/MuiPickersUtilsProvider"
-import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles"
+import DayjsUtils from "@date-io/dayjs"
+import { LocalizationProvider } from "@mui/lab"
 import {
-  CssBaseline,
-  Button,
   AppBar,
+  Button,
+  CssBaseline,
+  Tab,
+  Tabs,
   Toolbar,
   Typography,
-  Tabs,
-  Tab,
-} from "@material-ui/core"
-import { SnackbarProvider } from "notistack"
+} from "@mui/material"
 import {
+  StyledEngineProvider,
+  Theme,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material/styles"
+import { SnackbarProvider } from "notistack"
+import React from "react"
+import { QueryClient, QueryClientProvider } from "react-query"
+import {
+  Link,
+  Redirect,
+  Route,
   BrowserRouter as Router,
   Switch,
-  Route,
-  Link,
   useRouteMatch,
-  Redirect,
 } from "react-router-dom"
-import DayjsUtils from "@date-io/dayjs"
 
-import Fridge from "./Fridge"
-import Recipes from "./Recipes"
 import Calendar from "./Calendar"
+import Fridge from "./Fridge"
 import Login from "./Login"
+import Recipes from "./Recipes"
 import { AuthProvider, useAuth } from "./auth"
 import * as gateway from "./gateway"
 
-const theme = createMuiTheme({
+declare module "@mui/styles/defaultTheme" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
+const theme = createTheme({
   palette: {
     primary: {
       main: "#DD2E44",
@@ -56,14 +66,16 @@ export default function App() {
       )}
     >
       <AuthProvider>
-        <MuiPickersUtilsProvider utils={DayjsUtils}>
+        <LocalizationProvider dateAdapter={DayjsUtils}>
           <QueryClientProvider client={queryClient}>
-            <ThemeProvider theme={theme}>
-              <CssBaseline />
-              <Routes />
-            </ThemeProvider>
+            <StyledEngineProvider injectFirst>
+              <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <Routes />
+              </ThemeProvider>
+            </StyledEngineProvider>
           </QueryClientProvider>
-        </MuiPickersUtilsProvider>
+        </LocalizationProvider>
       </AuthProvider>
     </SnackbarProvider>
   )
@@ -101,6 +113,7 @@ function TopBar() {
       </Toolbar>
       {["calendar", "recipes", "fridge"].indexOf(currentPage) >= 0 && (
         <Tabs
+          textColor="inherit"
           TabIndicatorProps={{ style: { backgroundColor: "#FFFFFF" } }}
           value={currentPage}
           aria-label="simple tabs example"

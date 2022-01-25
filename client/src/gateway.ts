@@ -1,8 +1,8 @@
-import dayjs from "dayjs"
 import axios from "axios"
+import dayjs from "dayjs"
 
-import { Recipe, NewRecipe, Day, Meal, Food, NewFood } from "./domain"
 import { isAxiosResponseError } from "./axiosHelpers"
+import { Day, Food, Meal, NewFood, NewRecipe, Recipe } from "./domain"
 
 export async function logIn({
   username,
