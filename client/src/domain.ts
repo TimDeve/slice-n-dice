@@ -30,3 +30,14 @@ export interface Day {
   lunch: Meal
   dinner: Meal
 }
+
+export interface Food {
+  id: number
+  name: string
+  bestBeforeDate: Dayjs
+}
+
+export interface NewFood {
+  name: string
+  bestBeforeDate: Dayjs
+}

@@ -6,6 +6,8 @@ import isToday from "dayjs/plugin/isToday"
 import localizedFormat from "dayjs/plugin/localizedFormat"
 import weekday from "dayjs/plugin/weekday"
 
+export { Dayjs } from "dayjs"
+
 dayjs.extend(duration)
 dayjs.extend(isToday)
 dayjs.extend(localizedFormat)

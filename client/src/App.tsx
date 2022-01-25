@@ -1,5 +1,6 @@
 import React from "react"
 import { QueryClient, QueryClientProvider } from "react-query"
+import { MuiPickersUtilsProvider } from "@material-ui/pickers/MuiPickersUtilsProvider"
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles"
 import {
   CssBaseline,
@@ -19,7 +20,9 @@ import {
   useRouteMatch,
   Redirect,
 } from "react-router-dom"
+import DayjsUtils from "@date-io/dayjs"
 
+import Fridge from "./Fridge"
 import Recipes from "./Recipes"
 import Calendar from "./Calendar"
 import Login from "./Login"
@@ -53,12 +56,14 @@ export default function App() {
       )}
     >
       <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Routes />
-          </ThemeProvider>
-        </QueryClientProvider>
+        <MuiPickersUtilsProvider utils={DayjsUtils}>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <Routes />
+            </ThemeProvider>
+          </QueryClientProvider>
+        </MuiPickersUtilsProvider>
       </AuthProvider>
     </SnackbarProvider>
   )
@@ -70,12 +75,15 @@ function TopBar() {
   const isRootPage = useRouteMatch({ path: "/", exact: true })!!
   const isCalendarPage = useRouteMatch({ path: "/calendar" })!! || isRootPage
   const isRecipesPage = useRouteMatch({ path: "/recipes", exact: true })!!
+  const isFridgePage = useRouteMatch({ path: "/fridge", exact: true })!!
 
   let currentPage = ""
   if (isCalendarPage) {
     currentPage = "calendar"
   } else if (isRecipesPage) {
     currentPage = "recipes"
+  } else if (isFridgePage) {
+    currentPage = "fridge"
   }
 
   return (
@@ -91,7 +99,7 @@ function TopBar() {
           </Button>
         )}
       </Toolbar>
-      {["calendar", "recipes"].indexOf(currentPage) >= 0 && (
+      {["calendar", "recipes", "fridge"].indexOf(currentPage) >= 0 && (
         <Tabs
           TabIndicatorProps={{ style: { backgroundColor: "#FFFFFF" } }}
           value={currentPage}
@@ -104,6 +112,7 @@ function TopBar() {
             component={Link}
             to={"/recipes"}
           />
+          <Tab label="Fridge" value="fridge" component={Link} to={"/fridge"} />
         </Tabs>
       )}
     </AppBar>
@@ -127,6 +136,9 @@ function Routes() {
             </Route>
             <Route path="/recipes">
               <Recipes />
+            </Route>
+            <Route path="/fridge">
+              <Fridge />
             </Route>
             <Redirect to="/" />
           </>

@@ -24,7 +24,7 @@ function ButtonLink(props: LinkProps) {
     <Link
       className={buttonClass}
       {...props}
-      style={{ "textDecoration": "none" }}
+      style={{ textDecoration: "none" }}
     />
   )
 }
