@@ -21,9 +21,9 @@ pub async fn get_recipes<'a, E: PgExecutor<'a>>(
            AND ($3 IS NULL OR quick = $3)
          ORDER BY
            CASE WHEN $1 IS NOT NULL
-             THEN similarity(name, $1)
-             END
-           DESC
+                THEN similarity(name, $1)
+           END DESC,
+           name ASC
          LIMIT $2
          ",
     )
