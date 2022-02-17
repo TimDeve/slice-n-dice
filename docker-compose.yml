@@ -4,6 +4,7 @@ services:
   app:
     build: .
     ports: ["8099:8090"]
+    profiles: ["local"]
     environment:
      - SLICE_USER=user
      - SLICE_PASS=pass

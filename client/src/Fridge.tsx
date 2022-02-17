@@ -114,7 +114,7 @@ function FoodList() {
 
   return (
     <>
-      {data.length == 0 && (
+      {data.length === 0 && (
         <Typography
           variant="h5"
           style={{ fontSize: "1.286em", color: "#a7a7a7", marginTop: "16px" }}

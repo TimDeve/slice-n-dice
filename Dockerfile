@@ -17,21 +17,24 @@ RUN go build -o slice-gateway ./...
 #
 # NODE BUILDER
 #
-FROM node:16-buster-slim as node-builder
+FROM node:16-bullseye-slim as node-builder
 LABEL builder=true
 
-RUN mkdir -p /root/app
-WORKDIR /root/app
+RUN npm install --global pnpm
 
-ADD ./client ./client
+RUN mkdir -p /root/app/client
 WORKDIR /root/app/client
-RUN npm ci
-RUN NODE_ENV=production npm run build
+
+ADD client/package.json client/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+ADD client .
+RUN NODE_ENV=production pnpm run build
 
 #
 # RUST BUILDER
 #
-FROM rust:1.53-slim-buster as rust-builder
+FROM rust:1.53-slim-bullseye as rust-builder
 LABEL builder=true
 
 RUN mkdir -p /root/app
@@ -45,14 +48,19 @@ RUN apt-get update \
             ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-ADD ./server ./server
+RUN cargo new --bin server --name slice-n-dice-server
 WORKDIR ./server
+ADD ./server/Cargo.lock ./server/Cargo.toml ./
+RUN cargo build --release
+
+ADD ./server .
+RUN rm ./target/release/deps/*slice_n_dice_server*
 RUN cargo build --release
 
 #
 # RUNNER
 #
-FROM debian:buster-slim as runner
+FROM debian:bullseye-slim as runner
 RUN apt-get update \
  && apt-get install -y \
             libssl1.1 \
