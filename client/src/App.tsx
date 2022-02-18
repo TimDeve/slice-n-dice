@@ -20,11 +20,11 @@ import React from "react"
 import { QueryClient, QueryClientProvider } from "react-query"
 import {
   Link,
-  Redirect,
   Route,
   BrowserRouter as Router,
-  Switch,
-  useRouteMatch,
+  Navigate,
+  useMatch,
+  Routes,
 } from "react-router-dom"
 
 import Calendar from "./Calendar"
@@ -71,7 +71,7 @@ export default function App() {
             <StyledEngineProvider injectFirst>
               <ThemeProvider theme={theme}>
                 <CssBaseline />
-                <Routes />
+                <MyRoutes />
               </ThemeProvider>
             </StyledEngineProvider>
           </QueryClientProvider>
@@ -84,10 +84,11 @@ export default function App() {
 function TopBar() {
   const { isLoggedIn } = useAuth()
 
-  const isRootPage = useRouteMatch({ path: "/", exact: true })!!
-  const isCalendarPage = useRouteMatch({ path: "/calendar" })!! || isRootPage
-  const isRecipesPage = useRouteMatch({ path: "/recipes", exact: true })!!
-  const isFridgePage = useRouteMatch({ path: "/fridge", exact: true })!!
+  const isRootPage = useMatch({ path: "/" })!!
+  const isCalendarPage =
+    useMatch({ path: "/calendar/:weekStart" })!! || isRootPage
+  const isRecipesPage = useMatch({ path: "/recipes" })!!
+  const isFridgePage = useMatch({ path: "/fridge" })!!
 
   let currentPage = ""
   if (isCalendarPage) {
@@ -132,38 +133,28 @@ function TopBar() {
   )
 }
 
-function Routes() {
+function MyRoutes() {
   const { isLoggedIn } = useAuth()
 
   return (
     <Router>
       <TopBar />
-      <Switch>
+      <Routes>
         {isLoggedIn ? (
           <>
-            <Route exact path="/">
-              <Calendar />
-            </Route>
-            <Route path="/calendar/:weekStart">
-              <Calendar />
-            </Route>
-            <Route path="/recipes">
-              <Recipes />
-            </Route>
-            <Route path="/fridge">
-              <Fridge />
-            </Route>
-            <Redirect to="/" />
+            <Route path="/" element={<Calendar />} />
+            <Route path="/calendar/:weekStart" element={<Calendar />} />
+            <Route path="/recipes" element={<Recipes />} />
+            <Route path="/fridge" element={<Fridge />} />
+            <Route path="*" element={<Navigate to="/" />} />
           </>
         ) : (
           <>
-            <Route exact path="/login">
-              <Login />
-            </Route>
-            <Redirect to="/login" />
+            <Route path="/login" element={<Login />} />
+            <Route path="*" element={<Navigate to="/login" />} />
           </>
         )}
-      </Switch>
+      </Routes>
     </Router>
   )
 }
