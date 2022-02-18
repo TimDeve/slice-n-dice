@@ -16,15 +16,6 @@
       "react-app/jest"
     ]
   },
-  "prettier": {
-    "semi": false,
-    "arrowParens": "avoid",
-    "importOrder": [
-      "^[./]"
-    ],
-    "importOrderSeparation": true,
-    "importOrderSortSpecifiers": true
-  },
   "browserslist": [
     "last 3 chrome version",
     "last 3 firefox version"

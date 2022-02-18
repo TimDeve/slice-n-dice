@@ -20,11 +20,11 @@ import React from "react"
 import { QueryClient, QueryClientProvider } from "react-query"
 import {
   Link,
+  Navigate,
   Route,
   BrowserRouter as Router,
-  Navigate,
-  useMatch,
   Routes,
+  useMatch,
 } from "react-router-dom"
 
 import Calendar from "./Calendar"
