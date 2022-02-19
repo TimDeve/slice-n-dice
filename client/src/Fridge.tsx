@@ -1,6 +1,7 @@
 import AddIcon from "@mui/icons-material/Add"
 import CloseIcon from "@mui/icons-material/Close"
 import DatePicker from "@mui/lab/DatePicker/DatePicker"
+import { Portal, Zoom } from "@mui/material"
 import Button from "@mui/material/Button/Button"
 import Card from "@mui/material/Card/Card"
 import CardActions from "@mui/material/CardActions/CardActions"
@@ -19,7 +20,7 @@ import * as gateway from "./gateway"
 
 const useStyles = makeStyles(theme => ({
   fab: {
-    position: "fixed",
+    position: "absolute",
     bottom: theme.spacing(2),
     right: theme.spacing(2),
   },
@@ -178,23 +179,42 @@ function Loading() {
   return <>{isVisible && "Loading..."}</>
 }
 
-export default function Fridge() {
+export default function Fridge({ focused }: { focused: boolean }) {
   const styles = useStyles({})
   const [newFoodOpen, setNewFoodOpen] = useState(false)
 
   return (
-    <>
+    <div style={{ minHeight: "50vh" }}>
       <Container maxWidth="sm">
         {newFoodOpen && <NewFoodForm />}
         <FoodList />
       </Container>
-      <Fab
-        className={styles.fab}
-        color="primary"
-        onClick={() => setNewFoodOpen(!newFoodOpen)}
-      >
-        {newFoodOpen ? <CloseIcon /> : <AddIcon />}
-      </Fab>
-    </>
+      <Portal>
+        <Zoom
+          in={focused}
+          style={{
+            transitionDelay: `${focused ? 200 : 0}ms`,
+          }}
+          unmountOnExit
+        >
+          <Fab
+            className={styles.fab}
+            color="primary"
+            onClick={() => setNewFoodOpen(!newFoodOpen)}
+          >
+            {newFoodOpen ? <CloseIcon /> : <AddIcon />}
+          </Fab>
+        </Zoom>
+      </Portal>
+    </div>
   )
 }
+
+// <Zoom
+//   in={focus}
+//   // timeout={transitionDuration}
+//   // style={{
+//   //   transitionDelay: `${value === index ? transitionDuration.exit : 0}ms`,
+//   // }}
+//   unmountOnExit
+// >

@@ -202,7 +202,7 @@ export default function Calendar() {
   const weekStartDay = dayjs(weekStart).weekday(0)
 
   return (
-    <Container maxWidth="sm" style={{ paddingLeft: 0 }}>
+    <Container maxWidth="sm" style={{ paddingLeft: 0, paddingBottom: "16px" }}>
       <ActionBar weekStart={weekStartDay} />
       {[...Array(7).keys()].map(dayOfTheWeek => {
         return (

@@ -1,14 +1,6 @@
 import DayjsUtils from "@date-io/dayjs"
 import { LocalizationProvider } from "@mui/lab"
-import {
-  AppBar,
-  Button,
-  CssBaseline,
-  Tab,
-  Tabs,
-  Toolbar,
-  Typography,
-} from "@mui/material"
+import { Button, CssBaseline } from "@mui/material"
 import {
   StyledEngineProvider,
   Theme,
@@ -19,20 +11,16 @@ import { SnackbarProvider } from "notistack"
 import React from "react"
 import { QueryClient, QueryClientProvider } from "react-query"
 import {
-  Link,
   Navigate,
   Route,
   BrowserRouter as Router,
   Routes,
-  useMatch,
 } from "react-router-dom"
 
-import Calendar from "./Calendar"
-import Fridge from "./Fridge"
 import Login from "./Login"
-import Recipes from "./Recipes"
+import MainRoute from "./MainRoute"
+import TopBar from "./TopBar"
 import { AuthProvider, useAuth } from "./auth"
-import * as gateway from "./gateway"
 
 declare module "@mui/styles/defaultTheme" {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -81,58 +69,6 @@ export default function App() {
   )
 }
 
-function TopBar() {
-  const { isLoggedIn } = useAuth()
-
-  const isRootPage = useMatch({ path: "/" })!!
-  const isCalendarPage =
-    useMatch({ path: "/calendar/:weekStart" })!! || isRootPage
-  const isRecipesPage = useMatch({ path: "/recipes" })!!
-  const isFridgePage = useMatch({ path: "/fridge" })!!
-
-  let currentPage = ""
-  if (isCalendarPage) {
-    currentPage = "calendar"
-  } else if (isRecipesPage) {
-    currentPage = "recipes"
-  } else if (isFridgePage) {
-    currentPage = "fridge"
-  }
-
-  return (
-    <AppBar position="sticky">
-      <Toolbar style={{ display: "flex", justifyContent: "space-between" }}>
-        <Typography component="p" variant="h6">
-          Slice n' Dice
-        </Typography>
-
-        {isLoggedIn && (
-          <Button style={{ color: "white" }} onClick={() => gateway.logOut()}>
-            Logout
-          </Button>
-        )}
-      </Toolbar>
-      {["calendar", "recipes", "fridge"].indexOf(currentPage) >= 0 && (
-        <Tabs
-          textColor="inherit"
-          TabIndicatorProps={{ style: { backgroundColor: "#FFFFFF" } }}
-          value={currentPage}
-          aria-label="simple tabs example"
-        >
-          <Tab label="Calendar" value="calendar" component={Link} to={"/"} />
-          <Tab
-            label="Recipes"
-            value="recipes"
-            component={Link}
-            to={"/recipes"}
-          />
-          <Tab label="Fridge" value="fridge" component={Link} to={"/fridge"} />
-        </Tabs>
-      )}
-    </AppBar>
-  )
-}
-
 function MyRoutes() {
   const { isLoggedIn } = useAuth()
 
@@ -142,10 +78,10 @@ function MyRoutes() {
       <Routes>
         {isLoggedIn ? (
           <>
-            <Route path="/" element={<Calendar />} />
-            <Route path="/calendar/:weekStart" element={<Calendar />} />
-            <Route path="/recipes" element={<Recipes />} />
-            <Route path="/fridge" element={<Fridge />} />
+            <Route path="/" element={<MainRoute />} />
+            <Route path="/calendar/:weekStart" element={<MainRoute />} />
+            <Route path="/recipes" element={<MainRoute />} />
+            <Route path="/fridge" element={<MainRoute />} />
             <Route path="*" element={<Navigate to="/" />} />
           </>
         ) : (

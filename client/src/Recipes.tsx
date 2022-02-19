@@ -10,8 +10,10 @@ import {
   Container,
   Fab,
   FormControlLabel,
+  Portal,
   TextField,
   Typography,
+  Zoom,
 } from "@mui/material"
 import makeStyles from "@mui/styles/makeStyles"
 import { useSnackbar } from "notistack"
@@ -35,25 +37,36 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-export default function Recipes() {
+export default function Recipes({ focused }: { focused?: boolean }) {
   const styles = useStyles({})
   const [newRecipeOpen, setNewRecipeOpen] = useState(false)
 
   return (
     <>
-      <Container maxWidth="sm">
+      <Container maxWidth="sm" sx={{ minHeight: "50vh" }}>
         {newRecipeOpen && (
           <NewRecipeForm onSuccess={() => setNewRecipeOpen(false)} />
         )}
         <RecipeList />
       </Container>
-      <Fab
-        className={styles.fab}
-        color="primary"
-        onClick={() => setNewRecipeOpen(!newRecipeOpen)}
-      >
-        {newRecipeOpen ? <CloseIcon /> : <AddIcon />}
-      </Fab>
+
+      <Portal>
+        <Zoom
+          in={focused}
+          style={{
+            transitionDelay: `${focused ? 200 : 0}ms`,
+          }}
+          unmountOnExit
+        >
+          <Fab
+            className={styles.fab}
+            color="primary"
+            onClick={() => setNewRecipeOpen(!newRecipeOpen)}
+          >
+            {newRecipeOpen ? <CloseIcon /> : <AddIcon />}
+          </Fab>
+        </Zoom>
+      </Portal>
     </>
   )
 }
