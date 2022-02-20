@@ -9,12 +9,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material"
-import {
-  StyledEngineProvider,
-  Theme,
-  ThemeProvider,
-  createTheme,
-} from "@mui/material/styles"
+import { StyledEngineProvider, ThemeProvider } from "@mui/material/styles"
 import { SnackbarProvider } from "notistack"
 import React from "react"
 import { QueryClient, QueryClientProvider } from "react-query"
@@ -33,22 +28,7 @@ import Login from "./Login"
 import Recipes from "./Recipes"
 import { AuthProvider, useAuth } from "./auth"
 import * as gateway from "./gateway"
-
-declare module "@mui/styles/defaultTheme" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#DD2E44",
-    },
-    secondary: {
-      main: "#F44336",
-    },
-  },
-})
+import theme from "./theme"
 
 const notistackRef = React.createRef<SnackbarProvider>()
 

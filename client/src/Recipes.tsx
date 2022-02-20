@@ -8,6 +8,11 @@ import {
   CardContent,
   Checkbox,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Fab,
   FormControlLabel,
   TextField,
@@ -20,6 +25,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query"
 
 import { Recipe } from "./domain"
 import * as gateway from "./gateway"
+import { VoidFn } from "./shared/typeUtils"
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -49,7 +55,7 @@ export default function Recipes() {
       </Container>
       <Fab
         className={styles.fab}
-        color="primary"
+        color={"secondary"}
         onClick={() => setNewRecipeOpen(!newRecipeOpen)}
       >
         {newRecipeOpen ? <CloseIcon /> : <AddIcon />}
@@ -59,7 +65,7 @@ export default function Recipes() {
 }
 
 interface NewRecipeFormProps {
-  onSuccess: () => void
+  onSuccess: VoidFn
 }
 function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
   const styles = useStyles({})
@@ -122,6 +128,39 @@ function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
   )
 }
 
+interface DeleteRecipeDialogProps {
+  recipeName: string
+  isOpen: boolean
+  handleClose: VoidFn
+  handleDelete: VoidFn
+}
+
+function DeleteRecipeDialog({
+  recipeName,
+  isOpen,
+  handleClose,
+  handleDelete,
+}: DeleteRecipeDialogProps) {
+  return (
+    <Dialog open={isOpen} onClose={handleClose}>
+      <DialogTitle>Deleting Recipe</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Are you sure you want to delete {recipeName}?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button color={"neutral"} onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button onClick={handleDelete} autoFocus>
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
 function RecipeList() {
   const { isLoading, error, data } = useQuery(
     gateway.getRecipes.name,
@@ -154,10 +193,13 @@ function RecipeList() {
 }
 
 function RecipeItem({ name, quick, id }: Recipe) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+
   const { enqueueSnackbar } = useSnackbar()
   const queryClient = useQueryClient()
   const { mutate: deleteRecipe } = useMutation(gateway.deleteRecipe, {
     onSuccess: () => {
+      setDeleteDialogOpen(false)
       queryClient.invalidateQueries(gateway.getRecipes.name)
     },
     onError: () => {
@@ -166,36 +208,44 @@ function RecipeItem({ name, quick, id }: Recipe) {
   })
 
   return (
-    <Card style={{ marginTop: "14px", marginBottom: "14px" }}>
-      <CardContent>
-        <Typography
-          variant="h5"
-          component="div"
-          style={{ fontSize: "1.286em" }}
-        >
-          {name}
-        </Typography>
-        {quick && (
-          <>
-            <TimerIcon
-              style={{
-                width: "16px",
-                marginRight: "3px",
-                marginLeft: "-3px",
-                verticalAlign: "bottom",
-                marginBottom: "-2px",
-              }}
-            />
-            <Typography variant="caption">Under 30 minutes</Typography>
-          </>
-        )}
-      </CardContent>
-      <CardActions>
-        <Button size="small" onClick={() => deleteRecipe(id)}>
-          Delete
-        </Button>
-      </CardActions>
-    </Card>
+    <>
+      <Card style={{ marginTop: "14px", marginBottom: "14px" }}>
+        <CardContent>
+          <Typography
+            variant="h5"
+            component="div"
+            style={{ fontSize: "1.286em" }}
+          >
+            {name}
+          </Typography>
+          {quick && (
+            <>
+              <TimerIcon
+                style={{
+                  width: "16px",
+                  marginRight: "3px",
+                  marginLeft: "-3px",
+                  verticalAlign: "bottom",
+                  marginBottom: "-2px",
+                }}
+              />
+              <Typography variant="caption">Under 30 minutes</Typography>
+            </>
+          )}
+        </CardContent>
+        <CardActions>
+          <Button size="small" onClick={() => setDeleteDialogOpen(true)}>
+            Delete
+          </Button>
+        </CardActions>
+      </Card>
+      <DeleteRecipeDialog
+        recipeName={name}
+        isOpen={deleteDialogOpen}
+        handleClose={() => setDeleteDialogOpen(false)}
+        handleDelete={() => deleteRecipe(id)}
+      />
+    </>
   )
 }
 
