@@ -150,10 +150,10 @@ function DeleteRecipeDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button color={"neutral"} onClick={handleClose}>
+        <Button color="neutral" onClick={handleClose}>
           Cancel
         </Button>
-        <Button onClick={handleDelete} autoFocus>
+        <Button color="error" onClick={handleDelete} autoFocus>
           Delete
         </Button>
       </DialogActions>
@@ -234,7 +234,11 @@ function RecipeItem({ name, quick, id }: Recipe) {
           )}
         </CardContent>
         <CardActions>
-          <Button size="small" onClick={() => setDeleteDialogOpen(true)}>
+          <Button
+            color="error"
+            size="small"
+            onClick={() => setDeleteDialogOpen(true)}
+          >
             Delete
           </Button>
         </CardActions>

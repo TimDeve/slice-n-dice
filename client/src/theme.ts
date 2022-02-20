@@ -1,5 +1,6 @@
 import { Theme, createTheme } from "@mui/material"
-import { green } from "@mui/material/colors"
+import * as colors from "@mui/material/colors"
+import * as styles from "@mui/material/styles"
 
 declare module "@mui/styles/defaultTheme" {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -26,14 +27,14 @@ declare module "@mui/material/Button" {
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#DD2E44",
+      main: '#c65045',
     },
     secondary: {
-      main: "#BF360C",
+      main: '#ffcc80',
     },
     neutral: {
-      main: "#222222",
-      contrastText: "#fff",
+      main: "rgba(0, 0, 0, 0.87)",
+      contrastText: colors.common.white,
     },
   },
 })

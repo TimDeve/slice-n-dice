@@ -190,7 +190,7 @@ export default function Fridge() {
       </Container>
       <Fab
         className={styles.fab}
-        color="primary"
+        color="secondary"
         onClick={() => setNewFoodOpen(!newFoodOpen)}
       >
         {newFoodOpen ? <CloseIcon /> : <AddIcon />}
