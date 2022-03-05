@@ -27,14 +27,23 @@ declare module "@mui/material/Button" {
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#c65045',
+      main: "#C65045",
     },
     secondary: {
-      main: '#ffcc80',
+      main: "#FFCC80",
     },
     neutral: {
       main: "rgba(0, 0, 0, 0.87)",
       contrastText: colors.common.white,
+    },
+  },
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#FFFEFE",
+        },
+      },
     },
   },
 })
