@@ -1,19 +1,7 @@
-mod days;
-mod domain;
-mod foods;
-mod recipes;
-mod serde_date;
-mod tide_utils;
-
 use anyhow::{Context, Result};
+use slice_n_dice_server::init_app;
 use sqlx::postgres::PgPool;
 use std::env;
-use tide::Server;
-
-#[derive(Clone)]
-pub struct AppContext {
-    pool: PgPool,
-}
 
 #[async_std::main]
 async fn main() -> Result<()> {
@@ -24,11 +12,8 @@ async fn main() -> Result<()> {
     sqlx::migrate!().run(&pool).await?;
 
     tide::log::start();
-    let mut app = Server::with_state(AppContext { pool });
 
-    days::handlers::init(&mut app);
-    recipes::handlers::init(&mut app);
-    foods::handlers::init(&mut app);
+    let app = init_app(pool);
 
     app.listen("127.0.0.1:8091").await?;
 

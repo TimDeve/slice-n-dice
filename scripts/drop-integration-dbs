@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+for dbname in $(psql "$DATABASE_URL" -c "copy (select datname from pg_database where datname like 'slicendice-integration-test-%') to stdout") ; do
+    psql "$DATABASE_URL" -c "DROP DATABASE \"$dbname\""
+    echo "Dropped ${dbname}."
+done
