@@ -1,0 +1,22 @@
+name: Test and Build
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - uses: satackey/action-docker-layer-caching@v0.0.11
+      continue-on-error: true
+
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+
+    - name: Unit Tests
+      run: |
+        cd server && make test-unit
+
+    - name: Build the Docker image
+      run: docker build .
+
