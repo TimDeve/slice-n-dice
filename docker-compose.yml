@@ -16,6 +16,14 @@ services:
     depends_on:
       - db
       - redis
+  integration-db:
+    image: postgres
+    ports: ["15433:5432"]
+    profiles: ["integration"]
+    environment:
+      - POSTGRES_DB=slicendice
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
   db:
     image: postgres
     ports: ["15432:5432"]

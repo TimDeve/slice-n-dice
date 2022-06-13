@@ -4,6 +4,10 @@
 build:
 	cargo build --release
 
+.PHONY: build-dev
+build-dev:
+	cargo build
+
 .PHONY: clean
 clean:
 	rm -rf target

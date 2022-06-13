@@ -13,9 +13,24 @@ jobs:
       with:
         toolchain: stable
 
-    - name: Unit Tests
+    - name: "[Server] Build"
+      run: "cd server && make build-dev"
+
+    - name: "[Server] Unit Tests"
+      run: "cd server && make test-unit"
+
+    - name: "[Server] Start test DB"
+      run: docker compose up integration-db -d
+
+    - name: "[Server] Integration Tests"
+      run: "cd server && make test-integration"
+      env:
+        DATABASE_URL: "postgres://postgres:postgres@localhost:15433"
+
+    - name: "[Server] Stop test DB"
       run: |
-        cd server && make test-unit
+        docker compose stop integration-db \
+        && docker compose rm integration-db --force
 
     - name: Build the Docker image
       run: docker build .
