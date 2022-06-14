@@ -3,35 +3,75 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      RUST_BACKTRACE: full
+      RUSTC_WRAPPER: sccache
+      RUSTV: stable
+      SCCACHE_CACHE_SIZE: 4G
+      SCCACHE_DIR: /home/runner/.cache/sccache
     steps:
-    - uses: actions/checkout@v1
+      - uses: actions/checkout@v1
 
-    - uses: satackey/action-docker-layer-caching@v0.0.11
-      continue-on-error: true
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
 
-    - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
+      - name: Install sccache
+        env:
+          SCCACHE_LOCATION: https://github.com/mozilla/sccache/releases/download
+          SCCACHE_VERSION: v0.3.0
+        run: |
+          SCCACHE_FILE=sccache-$SCCACHE_VERSION-x86_64-unknown-linux-musl
+          mkdir -p $HOME/.local/bin
+          echo "Downloading from '$SCCACHE_LOCATION/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz'..."
+          curl -L "$SCCACHE_LOCATION/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz" | tar xz
+          mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
+          chmod +x $HOME/.local/bin/sccache
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-    - name: "[Server] Build"
-      run: "cd server && make build-dev"
+      - name: Cache sccache
+        uses: actions/cache@v2
+        continue-on-error: true
+        with:
+          path: /home/runner/.cache/sccache
+          key: sccache-${{ hashFiles('server/Cargo.lock') }}
+          restore-keys: sccache-
 
-    - name: "[Server] Unit Tests"
-      run: "cd server && make test-unit"
+      - name: Cache cargo registry
+        uses: actions/cache@v2
+        continue-on-error: true
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: cargo-${{ hashFiles('server/Cargo.lock') }}
+          restore-keys: cargo-
 
-    - name: "[Server] Start test DB"
-      run: docker compose up integration-db -d
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
 
-    - name: "[Server] Integration Tests"
-      run: "cd server && make test-integration"
-      env:
-        DATABASE_URL: "postgres://postgres:postgres@localhost:15433"
+      - name: "[Server] Build"
+        run: "cd server && make build-dev"
 
-    - name: "[Server] Stop test DB"
-      run: |
-        docker compose stop integration-db \
-        && docker compose rm integration-db --force
+      - name: "[Server] Unit Tests"
+        run: "cd server && make test-unit"
 
-    - name: Build the Docker image
-      run: docker build .
+      - name: "[Server] Start test DB"
+        run: docker compose up integration-db -d
+
+      - name: "[Server] Integration Tests"
+        run: "cd server && make test-integration"
+        env:
+          DATABASE_URL: "postgres://postgres:postgres@localhost:15433"
+
+      - name: "[Server] Stop test DB"
+        run: |
+          docker compose stop integration-db \
+          && docker compose rm integration-db --force
+
+      - name: Print sccache stats
+        run: sccache --show-stats
+
+      - name: Build the Docker image
+        run: docker build .
 
