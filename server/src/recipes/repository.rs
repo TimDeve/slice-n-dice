@@ -85,12 +85,13 @@ pub async fn create_recipe<'a, E: PgExecutor<'a>>(
     recipe: NewRecipe,
 ) -> anyhow::Result<Recipe> {
     let created_recipe = sqlx::query_as(
-        "INSERT INTO recipes ( name, quick )
-         VALUES ( $1, $2 )
+        "INSERT INTO recipes ( name, quick, body )
+         VALUES ( $1, $2, $3 )
          RETURNING *",
     )
     .bind(&recipe.name)
     .bind(&recipe.quick)
+    .bind(&recipe.body)
     .fetch_one(exec)
     .await?;
 

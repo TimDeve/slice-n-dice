@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+recipeBody=$(jq -c '.blocks[1]=.blocks[0] | .blocks[1].key="dead7"' <<'RECIPE_BODY'
+{"blocks":[{"key":"b7ma1","text":"Some recipe thing","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}
+RECIPE_BODY
+)
+
 foodStuff=(Salad Fish Rice Spaghetti Pizza Hamburger Eggs Cheese Sausages Apple Grape Milk Candy Cookie Pie Cake Cupcake)
 foodStuffLength=${#foodStuff[@]}
 
@@ -23,7 +28,8 @@ function genRecipes() {
       foodName="$foodName${foodStuff[$foodIndex]}$whiteSpace"
     done
 
-    query="${query}INSERT INTO recipes (name, quick) VALUES ('$foodName', $isQuick);$NEW_LINE"
+    recipeBodyWithName=$(echo "$recipeBody" | jq -c ".blocks[1].text=\"about $foodName\"")
+    query="${query}INSERT INTO recipes (name, quick, body) VALUES ('$foodName', $isQuick, '$recipeBodyWithName');$NEW_LINE"
   done
 }
 
