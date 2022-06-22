@@ -2,39 +2,46 @@ name: Test and Build
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }} 
     env:
       RUST_BACKTRACE: full
-      RUSTC_WRAPPER: sccache
-      RUSTV: stable
-      SCCACHE_CACHE_SIZE: 4G
-      SCCACHE_DIR: /home/runner/.cache/sccache
+      # RUSTC_WRAPPER: sccache
+      # RUSTV: stable
+      # SCCACHE_CACHE_SIZE: 4G
+      # SCCACHE_DIR: /home/runner/.cache/sccache
     steps:
       - uses: actions/checkout@v1
+
+      - name: "Setup Docker"
+        if: matrix.os == 'macos-latest' 
+        uses: docker-practice/actions-setup-docker@1.0.9
 
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
 
-      - name: Install sccache
-        env:
-          SCCACHE_LOCATION: https://github.com/mozilla/sccache/releases/download
-          SCCACHE_VERSION: v0.3.0
-        run: |
-          SCCACHE_FILE=sccache-$SCCACHE_VERSION-x86_64-unknown-linux-musl
-          mkdir -p $HOME/.local/bin
-          echo "Downloading from '$SCCACHE_LOCATION/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz'..."
-          curl -L "$SCCACHE_LOCATION/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz" | tar xz
-          mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
-          chmod +x $HOME/.local/bin/sccache
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      # - name: Install sccache
+      #   env:
+      #     SCCACHE_LOCATION: https://github.com/mozilla/sccache/releases/download
+      #     SCCACHE_VERSION: v0.3.0
+      #   run: |
+      #     SCCACHE_FILE=sccache-$SCCACHE_VERSION-x86_64-unknown-linux-musl
+      #     mkdir -p $HOME/.local/bin
+      #     echo "Downloading from '$SCCACHE_LOCATION/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz'..."
+      #     curl -L "$SCCACHE_LOCATION/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz" | tar xz
+      #     mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
+      #     chmod +x $HOME/.local/bin/sccache
+      #     echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Cache sccache
-        uses: actions/cache@v2
-        continue-on-error: true
-        with:
-          path: /home/runner/.cache/sccache
-          key: sccache-${{ hashFiles('server/Cargo.lock') }}
-          restore-keys: sccache-
+      # - name: Cache sccache
+      #   uses: actions/cache@v2
+      #   continue-on-error: true
+      #   with:
+      #     path: /home/runner/.cache/sccache
+      #     key: sccache-${{ hashFiles('server/Cargo.lock') }}
+      #     restore-keys: sccache-
 
       - name: Cache cargo registry
         uses: actions/cache@v2
@@ -57,7 +64,7 @@ jobs:
         run: "cd server && make test-unit"
 
       - name: "[Server] Start test DB"
-        run: docker compose up integration-db -d
+        run: docker compose up --detach integration-db
 
       - name: "[Server] Integration Tests"
         run: "cd server && make test-integration"
@@ -67,11 +74,11 @@ jobs:
       - name: "[Server] Stop test DB"
         run: |
           docker compose stop integration-db \
-          && docker compose rm integration-db --force
+          && docker compose rm --force integration-db
 
-      - name: Print sccache stats
-        run: sccache --show-stats
+      # - name: Print sccache stats
+      #   run: sccache --show-stats
 
-      - name: Build the Docker image
-        run: docker build .
+      # - name: Build the Docker image
+      #   run: docker build .
 
