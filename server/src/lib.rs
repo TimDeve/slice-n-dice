@@ -2,17 +2,11 @@ mod days;
 mod domain;
 mod foods;
 mod recipes;
+mod serde_date;
 mod tide_utils;
 
 use sqlx::postgres::PgPool;
 use tide::Server;
-use time::serde::format_description;
-
-format_description!(
-    serde_iso_date,
-    Date,
-    "[year repr:full]-[month padding:zero]-[day]"
-);
 
 #[derive(Clone)]
 pub struct AppContext {

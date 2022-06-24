@@ -15,7 +15,7 @@ pub fn init(app: &mut Server<AppContext>) {
 
 #[derive(Deserialize)]
 struct GetFoodQueryParams {
-    limit: Option<i32>,
+    limit: Option<u32>,
 }
 
 #[derive(Serialize)]

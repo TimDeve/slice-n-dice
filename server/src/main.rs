@@ -9,9 +9,9 @@ async fn main() -> Result<()> {
         env::var("DATABASE_URL").context("DATABASE_URL env variable needs to be set")?;
     let pool = PgPool::connect(&database_url).await?;
 
-    tide::log::start();
-
     sqlx::migrate!().run(&pool).await?;
+
+    tide::log::start();
 
     let app = init_app(pool);
 
