@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
-use sqlx::types::{Json, JsonRawValue};
+use serde_json::value::RawValue;
+use sqlx::types::Json;
 use time::Date;
 use uuid::Uuid;
 
@@ -10,7 +11,7 @@ use crate::serde_date;
 pub struct NewRecipe {
     pub name: String,
     pub quick: bool,
-    pub body: Json<Box<JsonRawValue>>,
+    pub body: Json<Box<RawValue>>,
 }
 
 #[derive(Serialize, sqlx::FromRow)]
@@ -19,7 +20,7 @@ pub struct Recipe {
     pub id: Uuid,
     pub name: String,
     pub quick: bool,
-    pub body: Json<Box<JsonRawValue>>,
+    pub body: Json<Box<RawValue>>,
 }
 
 #[derive(Serialize)]

@@ -5,16 +5,14 @@ authors = ["Tim Dévé <TimDeve@users.noreply.github.com>"]
 edition = "2018"
 
 [dependencies]
-anyhow    = "1"
-async-std = { version = "1", features = ["attributes"] }
-serde     = "1"
-sqlx      = { version = "0.5", features = ["runtime-async-std-native-tls", "postgres", "migrate", "time", "uuid"] }
-uuid      = { version = "0.8", features = ["serde", "v4"] }
-tide      = "0.16"
-time      = "0.2"
-
-[dev-dependencies]
-serde_json = "1"
+anyhow     = { version = "1" }
+async-std  = { version = "1", features = ["attributes"] }
+serde      = { version = "1" }
+serde_json = { version = "1" }
+sqlx       = { version = "0.5", features = ["runtime-async-std-native-tls", "postgres", "migrate", "time", "uuid"] }
+tide       = { version = "0.16" }
+time       = { version = "0.2" }
+uuid       = { version = "0.8", features = ["serde", "v4"] }
 
 [features]
 integration-tests-with-db = []
