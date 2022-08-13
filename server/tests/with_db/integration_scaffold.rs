@@ -53,7 +53,7 @@ impl Scaffold {
         })
     }
 
-    async fn adrop(&mut self) -> Result<()> {
+    pub async fn adrop(&mut self) -> Result<()> {
         self.pool.close().await;
 
         let mut db_url = self.db_url.clone();
@@ -68,21 +68,21 @@ impl Scaffold {
     }
 }
 
-impl Drop for Scaffold {
-    fn drop(&mut self) {
-        if self.should_drop_db {
-            task::block_on(async {
-                let res = self.adrop().await;
-                match res {
-                    Ok(()) => println!("Successfully dropped test db."),
-                    Err(err) => panic!("Could not drop test db because of {}", err),
-                }
-            })
-        } else {
-            println!(
-                "Not dropping test db because DONT_DROP_INTEGRATION_DB is set.\n db name is '{}'",
-                self.db_name
-            )
-        }
-    }
-}
+// impl Drop for Scaffold {
+//     fn drop(&mut self) {
+//         if self.should_drop_db {
+//             task::block_on(async {
+//                 let res = self.adrop().await;
+//                 match res {
+//                     Ok(()) => println!("Successfully dropped test db."),
+//                     Err(err) => panic!("Could not drop test db because of {}", err),
+//                 }
+//             })
+//         } else {
+//             println!(
+//                 "Not dropping test db because DONT_DROP_INTEGRATION_DB is set.\n db name is '{}'",
+//                 self.db_name
+//             )
+//         }
+//     }
+// }
