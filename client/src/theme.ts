@@ -1,10 +1,12 @@
 import { Theme, createTheme } from "@mui/material"
 import * as colors from "@mui/material/colors"
-import * as styles from "@mui/material/styles"
+import { TMUIRichTextEditorStyles } from "mui-rte"
 
 declare module "@mui/styles/defaultTheme" {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
+  interface DefaultTheme extends Theme {
+    components: any
+  }
 }
 
 declare module "@mui/material/styles" {
@@ -47,5 +49,24 @@ const theme = createTheme({
     },
   },
 })
+
+const MUIRichTextEditorOverrides: TMUIRichTextEditorStyles = {
+  overrides: {
+    MUIRichTextEditor: {
+      root: {
+        padding: "4px",
+      },
+      editor: {
+        padding: "0 12px",
+      },
+      placeHolder: {
+        color: "rgba(110, 110, 110)",
+        padding: "0 12px",
+      },
+    },
+  },
+}
+
+Object.assign(theme, MUIRichTextEditorOverrides)
 
 export default theme

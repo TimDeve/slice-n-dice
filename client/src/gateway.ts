@@ -55,11 +55,16 @@ export async function getRecipes(): Promise<Recipe[]> {
   }
 }
 
-export async function createRecipe({ name, quick }: NewRecipe): Promise<void> {
+export async function createRecipe({
+  name,
+  quick,
+  body,
+}: NewRecipe): Promise<void> {
   try {
     await axios.post("/api/v0/recipes", {
       name,
       quick,
+      body,
     })
   } catch (e) {
     console.error(e)

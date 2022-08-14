@@ -25,7 +25,7 @@ import {
 import Calendar from "./Calendar"
 import Fridge from "./Fridge"
 import Login from "./Login"
-import Recipes from "./Recipes"
+import Recipes from "./recipes/Recipes"
 import { AuthProvider, useAuth } from "./auth"
 import * as gateway from "./gateway"
 import theme from "./theme"

@@ -6,7 +6,6 @@ import {
   Card,
   CardActions,
   CardContent,
-  Checkbox,
   Container,
   Dialog,
   DialogActions,
@@ -14,8 +13,6 @@ import {
   DialogContentText,
   DialogTitle,
   Fab,
-  FormControlLabel,
-  TextField,
   Typography,
 } from "@mui/material"
 import makeStyles from "@mui/styles/makeStyles"
@@ -23,9 +20,10 @@ import { useSnackbar } from "notistack"
 import { useEffect, useRef, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "react-query"
 
-import { Recipe } from "./domain"
-import * as gateway from "./gateway"
-import { VoidFn } from "./shared/typeUtils"
+import NewRecipeForm from "./NewRecipeForm"
+import { Recipe } from "../domain"
+import * as gateway from "../gateway"
+import { VoidFn } from "../shared/typeUtils"
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -61,70 +59,6 @@ export default function Recipes() {
         {newRecipeOpen ? <CloseIcon /> : <AddIcon />}
       </Fab>
     </>
-  )
-}
-
-interface NewRecipeFormProps {
-  onSuccess: VoidFn
-}
-function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
-  const styles = useStyles({})
-  const { enqueueSnackbar } = useSnackbar()
-  const [name, setName] = useState("")
-  const [quick, setQuick] = useState<boolean>(false)
-  const queryClient = useQueryClient()
-  const { mutate: createRecipe } = useMutation(gateway.createRecipe, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(gateway.getRecipes.name)
-      setName("")
-    },
-    onError: () => {
-      enqueueSnackbar("Failed to create recipe", { variant: "error" })
-    },
-  })
-
-  function submitable(): boolean {
-    return !!name
-  }
-
-  return (
-    <Card style={{ marginTop: "14px", marginBottom: "14px" }}>
-      <form
-        onSubmit={e => {
-          e.preventDefault()
-          createRecipe({
-            name,
-            quick,
-          })
-        }}
-      >
-        <CardContent>
-          <TextField
-            className={styles.field}
-            value={name}
-            name="name"
-            label="Recipe Name"
-            onChange={e => setName(e.target.value)}
-          />
-          <br />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={quick}
-                name="quick"
-                onChange={e => setQuick(e.target.checked)}
-              />
-            }
-            label="Under 30 minutes?"
-          />
-        </CardContent>
-        <CardActions>
-          <Button type="submit" size="small" disabled={!submitable()}>
-            Add
-          </Button>
-        </CardActions>
-      </form>
-    </Card>
   )
 }
 
