@@ -20,16 +20,15 @@ impl Scaffold {
             env::var("DATABASE_URL").context("DATABASE_URL env variable needs to be set")?;
 
         let mut db_url = Url::parse(&db_url_string)?;
-        let id: Uuid = Uuid::new_v4();
-        let mut db_name = String::from("slicendice-integration-test-");
-        db_name.push_str(&id.to_string());
-
         db_url.set_path("/");
-        let pool = PgPool::connect(&db_url.to_string()).await?;
 
+        let mut db_name = String::from("slicendice-integration-test-");
+        db_name.push_str(&Uuid::new_v4().to_string()[29..]);
+
+        let mut conn = PgConnection::connect(&db_url.to_string()).await?;
         // Using format here because bind doesn't work for CREATE DATABASE
         sqlx::query(&format!(r#"CREATE DATABASE "{}""#, &db_name))
-            .execute(&pool.clone())
+            .execute(&mut conn)
             .await?;
 
         let mut db_path = String::from("/");
