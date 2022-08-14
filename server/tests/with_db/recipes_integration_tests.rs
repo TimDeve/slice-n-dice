@@ -13,7 +13,7 @@ use super::integration_scaffold::Scaffold;
 async fn it_returns_no_recipes_when_there_is_no_recipes() -> Result<()> {
     let scaff = Scaffold::new().await?;
 
-    let app = init_app(scaff.pool.clone());
+    let app = init_app(scaff.clone_pool()?);
 
     let req = Request::new(Method::Get, api_url("/recipes"));
     let mut res: Response = emap(app.respond(req).await)?;
@@ -38,7 +38,7 @@ async fn it_returns_no_recipes_when_there_is_no_recipes() -> Result<()> {
 async fn it_returns_recipes() -> Result<()> {
     let scaff = Scaffold::new().await?;
 
-    let app = init_app(scaff.pool.clone());
+    let app = init_app(scaff.clone_pool()?);
 
     let recipe_body = empty_json_recipe_body();
 
@@ -74,7 +74,7 @@ async fn it_returns_recipes() -> Result<()> {
 async fn it_creates_and_retrieves_a_recipe() -> Result<()> {
     let scaff = Scaffold::new().await?;
 
-    let app = init_app(scaff.pool.clone());
+    let app = init_app(scaff.clone_pool()?);
 
     let mut recipe_body = empty_json_recipe_body();
     recipe_body["blocks"] = json!([recipe_body_block("What a recipe!")]);

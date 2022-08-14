@@ -1,6 +1,6 @@
 use std::env;
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use async_std::task;
 use sqlx::Connection;
 use sqlx::{PgConnection, PgPool};
@@ -8,19 +8,13 @@ use tide::http::Url;
 use uuid::Uuid;
 
 pub struct Scaffold {
-    pub pool: PgPool,
+    pool: Option<PgPool>,
     db_url: Url,
     db_name: String,
     should_drop_db: bool,
 }
 
 impl Scaffold {
-    fn should_drop_db() -> bool {
-        match env::var("DONT_DROP_INTEGRATION_DB") {
-            Ok(_) => false,
-            _ => true,
-        }
-    }
     pub async fn new() -> Result<Scaffold> {
         let db_url_string =
             env::var("DATABASE_URL").context("DATABASE_URL env variable needs to be set")?;
@@ -46,15 +40,30 @@ impl Scaffold {
         sqlx::migrate!().run(&pool).await?;
 
         Result::Ok(Scaffold {
-            pool,
+            pool: Some(pool),
             db_url,
             db_name,
             should_drop_db: Self::should_drop_db(),
         })
     }
 
+    fn should_drop_db() -> bool {
+        match env::var("DONT_DROP_INTEGRATION_DB") {
+            Ok(_) => false,
+            _ => true,
+        }
+    }
+
+    pub fn clone_pool(&self) -> Result<PgPool> {
+        match &self.pool {
+            Some(p) => Ok(p.clone()),
+            None => Err(anyhow!("The pool is closed")),
+        }
+    }
+
     async fn adrop(&mut self) -> Result<()> {
-        self.pool.close().await;
+        self.clone_pool()?.close().await;
+        self.pool = None; // Drop the pool to make sure all connections are _actually_ closed
 
         let mut db_url = self.db_url.clone();
         db_url.set_path("/");
