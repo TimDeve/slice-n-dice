@@ -1,4 +1,5 @@
 import { Dayjs } from "dayjs"
+import { RawDraftContentState } from "draft-js"
 
 export interface Recipe {
   id: string
@@ -9,6 +10,7 @@ export interface Recipe {
 export interface NewRecipe {
   name: string
   quick: boolean
+  body: RawDraftContentState
 }
 
 export interface RecipeMeal extends Recipe {
