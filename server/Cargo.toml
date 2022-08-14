@@ -2,17 +2,18 @@
 name = "slice-n-dice-server"
 version = "0.1.0"
 authors = ["Tim Dévé <TimDeve@users.noreply.github.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-anyhow     = { version = "1" }
-async-std  = { version = "1", features = ["attributes"] }
-serde      = { version = "1" }
-serde_json = { version = "1" }
-sqlx       = { version = "0.5", features = ["runtime-async-std-native-tls", "postgres", "migrate", "time", "uuid"] }
-tide       = { version = "0.16" }
-time       = { version = "0.2" }
-uuid       = { version = "0.8", features = ["serde", "v4"] }
+anyhow      = { version = "1" }
+async-std   = { version = "1", features = ["attributes"] }
+lazy_static = { version = "1.4" }
+serde       = { version = "1" }
+serde_json  = { version = "1" }
+sqlx        = { version = "0.6", features = ["runtime-async-std-native-tls", "postgres", "migrate", "time", "uuid", "json"] }
+tide        = { version = "0.16" }
+time        = { version = "0.3" , features = ["serde", "serde-human-readable", "macros"] }
+uuid        = { version = "1", features = ["serde", "v4"] }
 
 [features]
 integration-tests-with-db = []
