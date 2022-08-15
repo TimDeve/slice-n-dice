@@ -7,6 +7,7 @@
 
 # testing
 /coverage
+deps-stats.html
 
 # production
 /build
