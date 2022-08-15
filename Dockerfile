@@ -25,7 +25,7 @@ RUN npm install --global pnpm
 RUN mkdir -p /root/app/client
 WORKDIR /root/app/client
 
-ADD client/package.json client/pnpm-lock.yaml ./
+ADD client/package.json client/pnpm-lock.yaml client/.npmrc ./
 RUN pnpm install --frozen-lockfile
 
 ADD client .
