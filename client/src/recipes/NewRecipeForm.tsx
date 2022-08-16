@@ -8,19 +8,16 @@ import {
   TextField,
 } from "@mui/material"
 import makeStyles from "@mui/styles/makeStyles"
-import {
-  DraftHandleValue,
-  EditorState,
-  SelectionState,
-  convertToRaw,
-} from "draft-js"
-import MUIRichTextEditor from "mui-rte"
+import type { RawDraftContentState } from "draft-js"
 import { useSnackbar } from "notistack"
-import { FormEvent, FormEventHandler, useState } from "react"
+import { FormEvent, Suspense, lazy, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 
 import * as gateway from "../gateway"
+import LoadingText from "../shared/LoadingText"
 import { VoidFn } from "../shared/typeUtils"
+
+const LazyNewRecipeBodyField = lazy(() => import("./NewRecipeBodyField"))
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -36,6 +33,13 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
+function genEmptyRawEditorState(): RawDraftContentState {
+  return {
+    blocks: [],
+    entityMap: {},
+  }
+}
+
 function useEditorKey(): [number, VoidFn] {
   const [key, setKey] = useState(0)
 
@@ -43,14 +47,14 @@ function useEditorKey(): [number, VoidFn] {
 }
 
 interface NewRecipeFormProps {
-  onSuccess: VoidFn
+  onSuccess?: VoidFn
 }
 export default function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
   const styles = useStyles({})
   const { enqueueSnackbar } = useSnackbar()
   const [name, setName] = useState("")
   const [quick, setQuick] = useState<boolean>(false)
-  const [body, setBody] = useState(EditorState.createEmpty())
+  const [body, setBody] = useState(genEmptyRawEditorState())
   const [bodyKey, resetBodyKey] = useEditorKey()
 
   const queryClient = useQueryClient()
@@ -59,6 +63,7 @@ export default function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
       queryClient.invalidateQueries(gateway.getRecipes.name)
       setName("")
       resetBodyKey()
+      onSuccess?.()
     },
     onError: () => {
       enqueueSnackbar("Failed to create recipe", { variant: "error" })
@@ -70,7 +75,7 @@ export default function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
     createRecipe({
       name,
       quick,
-      body: convertToRaw(body.getCurrentContent()),
+      body,
     })
   }
 
@@ -100,24 +105,12 @@ export default function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
             }
             label="Under 30 minutes?"
           />
-          <Card sx={{ minHeight: "160px" }} variant="outlined">
-            <MUIRichTextEditor
-              label="Recipe instructions..."
-              key={bodyKey}
-              controls={[
-                "title",
-                "bold",
-                "italic",
-                "underline",
-                "strikethrough",
-                "link",
-                "numberList",
-                "bulletList",
-              ]}
+          <Suspense fallback={<LoadingText zeroHeight block />}>
+            <LazyNewRecipeBodyField
               onChange={state => setBody(state)}
-              inlineToolbar={true}
+              key={bodyKey}
             />
-          </Card>
+          </Suspense>
         </CardContent>
         <CardActions>
           <Button type="submit" size="small" disabled={!submitable()}>

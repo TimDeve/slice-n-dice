@@ -17,13 +17,13 @@ import {
 } from "@mui/material"
 import makeStyles from "@mui/styles/makeStyles"
 import { useSnackbar } from "notistack"
-import { useEffect, useRef, useState } from "react"
+import { Suspense, lazy, useEffect, useRef, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "react-query"
 
-import NewRecipeForm from "./NewRecipeForm"
 import { Recipe } from "../domain"
 import * as gateway from "../gateway"
 import { VoidFn } from "../shared/typeUtils"
+import NewRecipeForm from "./NewRecipeForm"
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -46,9 +46,7 @@ export default function Recipes() {
   return (
     <>
       <Container maxWidth="sm">
-        {newRecipeOpen && (
-          <NewRecipeForm onSuccess={() => setNewRecipeOpen(false)} />
-        )}
+        {newRecipeOpen && <NewRecipeForm />}
         <RecipeList />
       </Container>
       <Fab

@@ -1,5 +1,5 @@
 import { Dayjs } from "dayjs"
-import { RawDraftContentState } from "draft-js"
+import type { RawDraftContentState } from "draft-js"
 
 export interface Recipe {
   id: string

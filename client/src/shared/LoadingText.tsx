@@ -1,8 +1,24 @@
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 
 import useInterval from "./useInterval"
 
-export default function LoadingText() {
+interface WrappingElementProps {
+  block?: boolean,
+  children: ReactNode
+}
+function WrappingElement({ block, children }: WrappingElementProps) {
+  if (block) {
+    return <div>{children}</div>
+  } else {
+    return <>{children}</>
+  }
+}
+
+interface LoadingTextProps {
+  zeroHeight?: boolean,
+  block?: boolean,
+}
+export default function LoadingText(props: LoadingTextProps) {
   const nonBreakingSpace = "\u00a0"
   const [hidden, setHidden] = useState(true)
   const [ellipsis, setEllipsis] = useState("...")
@@ -26,5 +42,7 @@ export default function LoadingText() {
     }
   }, 500)
 
-  return <>{hidden ? nonBreakingSpace : `Loading${ellipsis}`}</>
+  const whenHidden = props.zeroHeight ? null : nonBreakingSpace
+
+  return <WrappingElement block={props.block}>{hidden ? whenHidden : `Loading${ellipsis}`}</WrappingElement>
 }

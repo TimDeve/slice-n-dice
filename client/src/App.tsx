@@ -22,12 +22,9 @@ import {
   useMatch,
 } from "react-router-dom"
 
-import Calendar from "./Calendar"
-import Fridge from "./Fridge"
-import Login from "./Login"
-import Recipes from "./recipes/Recipes"
 import { AuthProvider, useAuth } from "./auth"
 import * as gateway from "./gateway"
+import * as pages from "./pages"
 import theme from "./theme"
 
 const notistackRef = React.createRef<SnackbarProvider>()
@@ -122,15 +119,15 @@ function MyRoutes() {
       <Routes>
         {isLoggedIn ? (
           <>
-            <Route path="/" element={<Calendar />} />
-            <Route path="/calendar/:weekStart" element={<Calendar />} />
-            <Route path="/recipes" element={<Recipes />} />
-            <Route path="/fridge" element={<Fridge />} />
+            <Route path="/" element={<pages.Calendar />} />
+            <Route path="/calendar/:weekStart" element={<pages.Calendar />} />
+            <Route path="/recipes" element={<pages.Recipes />} />
+            <Route path="/fridge" element={<pages.Fridge />} />
             <Route path="*" element={<Navigate to="/" />} />
           </>
         ) : (
           <>
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<pages.Login />} />
             <Route path="*" element={<Navigate to="/login" />} />
           </>
         )}
