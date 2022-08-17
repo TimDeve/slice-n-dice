@@ -1,19 +1,16 @@
 use anyhow::{anyhow, bail, Context, Result};
 use serde_json::{json, Value};
 use slice_n_dice_server::init_app;
+use sqlx::PgPool;
 use tide::{
     http::{Method, Request, Response, Url},
     StatusCode,
 };
 use uuid::Uuid;
 
-use super::integration_scaffold::Scaffold;
-
-#[async_std::test]
-async fn it_returns_no_recipes_when_there_is_no_recipes() -> Result<()> {
-    let scaff = Scaffold::new().await?;
-
-    let app = init_app(scaff.clone_pool()?);
+#[sqlx::test]
+async fn it_returns_no_recipes_when_there_is_no_recipes(pool: PgPool) -> Result<()> {
+    let app = init_app(pool);
 
     let req = Request::new(Method::Get, api_url("/recipes"));
     let mut res: Response = emap(app.respond(req).await)?;
@@ -34,11 +31,9 @@ async fn it_returns_no_recipes_when_there_is_no_recipes() -> Result<()> {
     Ok(())
 }
 
-#[async_std::test]
-async fn it_returns_recipes() -> Result<()> {
-    let scaff = Scaffold::new().await?;
-
-    let app = init_app(scaff.clone_pool()?);
+#[sqlx::test]
+async fn it_returns_recipes(pool: PgPool) -> Result<()> {
+    let app = init_app(pool);
 
     let recipe_body = empty_json_recipe_body();
 
@@ -70,11 +65,9 @@ async fn it_returns_recipes() -> Result<()> {
     Ok(())
 }
 
-#[async_std::test]
-async fn it_creates_and_retrieves_a_recipe() -> Result<()> {
-    let scaff = Scaffold::new().await?;
-
-    let app = init_app(scaff.clone_pool()?);
+#[sqlx::test]
+async fn it_creates_and_retrieves_a_recipe(pool: PgPool) -> Result<()> {
+    let app = init_app(pool);
 
     let mut recipe_body = empty_json_recipe_body();
     recipe_body["blocks"] = json!([recipe_body_block("What a recipe!")]);
