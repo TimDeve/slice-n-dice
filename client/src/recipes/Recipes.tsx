@@ -17,7 +17,7 @@ import {
 } from "@mui/material"
 import makeStyles from "@mui/styles/makeStyles"
 import { useSnackbar } from "notistack"
-import { Suspense, lazy, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "react-query"
 
 import { Recipe } from "../domain"
@@ -38,6 +38,19 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(1),
   },
 }))
+
+function CacheDraftJs() {
+  useEffect(() => {
+    ;(async () => {
+      try {
+        await import("./NewRecipeBodyField")
+      } catch (e) {
+        console.error("Failed to cache NewRecipeBodyField", e)
+      }
+    })()
+  }, [])
+  return <></>
+}
 
 export default function Recipes() {
   const styles = useStyles({})
@@ -109,6 +122,7 @@ function RecipeList() {
 
   return (
     <>
+      <CacheDraftJs />
       {data.length === 0 && (
         <Typography
           variant="h5"

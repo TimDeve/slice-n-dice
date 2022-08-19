@@ -33,13 +33,6 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-function genEmptyRawEditorState(): RawDraftContentState {
-  return {
-    blocks: [],
-    entityMap: {},
-  }
-}
-
 function useEditorKey(): [number, VoidFn] {
   const [key, setKey] = useState(0)
 
@@ -54,7 +47,7 @@ export default function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
   const { enqueueSnackbar } = useSnackbar()
   const [name, setName] = useState("")
   const [quick, setQuick] = useState<boolean>(false)
-  const [body, setBody] = useState(genEmptyRawEditorState())
+  const [body, setBody] = useState("")
   const [bodyKey, resetBodyKey] = useEditorKey()
 
   const queryClient = useQueryClient()
@@ -108,7 +101,7 @@ export default function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
           <Suspense fallback={<LoadingText zeroHeight block />}>
             <LazyNewRecipeBodyField
               onChange={state => setBody(state)}
-              key={bodyKey}
+              fieldKey={bodyKey}
             />
           </Suspense>
         </CardContent>

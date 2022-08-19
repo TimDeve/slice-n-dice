@@ -3,7 +3,7 @@ import { ReactNode, useState } from "react"
 import useInterval from "./useInterval"
 
 interface WrappingElementProps {
-  block?: boolean,
+  block?: boolean
   children: ReactNode
 }
 function WrappingElement({ block, children }: WrappingElementProps) {
@@ -15,8 +15,8 @@ function WrappingElement({ block, children }: WrappingElementProps) {
 }
 
 interface LoadingTextProps {
-  zeroHeight?: boolean,
-  block?: boolean,
+  zeroHeight?: boolean
+  block?: boolean
 }
 export default function LoadingText(props: LoadingTextProps) {
   const nonBreakingSpace = "\u00a0"
@@ -44,5 +44,9 @@ export default function LoadingText(props: LoadingTextProps) {
 
   const whenHidden = props.zeroHeight ? null : nonBreakingSpace
 
-  return <WrappingElement block={props.block}>{hidden ? whenHidden : `Loading${ellipsis}`}</WrappingElement>
+  return (
+    <WrappingElement block={props.block}>
+      {hidden ? whenHidden : `Loading${ellipsis}`}
+    </WrappingElement>
+  )
 }

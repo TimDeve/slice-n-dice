@@ -2,7 +2,10 @@ use sqlx::{Executor, Postgres};
 
 use uuid::Uuid;
 
-use crate::domain::{NewRecipe, Recipe};
+use crate::{
+    domain::{NewRecipe, Recipe},
+    html_filter,
+};
 
 pub trait PgExecutor<'a>: Executor<'a, Database = Postgres> + Clone {}
 impl<'a, T> PgExecutor<'a> for T where T: Executor<'a, Database = Postgres> + Clone {}
@@ -85,13 +88,14 @@ pub async fn create_recipe<'a, E: PgExecutor<'a>>(
     recipe: NewRecipe,
 ) -> anyhow::Result<Recipe> {
     let created_recipe = sqlx::query_as(
-        "INSERT INTO recipes ( name, quick, body )
-         VALUES ( $1, $2, $3 )
+        "INSERT INTO recipes ( name, quick, body_html, body_plain_text )
+         VALUES ( $1, $2, $3, $4 )
          RETURNING *",
     )
     .bind(&recipe.name)
     .bind(&recipe.quick)
     .bind(&recipe.body)
+    .bind(&html_filter::to_plain_text(&recipe.body)?)
     .fetch_one(exec)
     .await?;
 

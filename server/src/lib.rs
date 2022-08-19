@@ -1,6 +1,7 @@
 mod days;
 mod domain;
 mod foods;
+mod html_filter;
 mod recipes;
 mod tide_utils;
 

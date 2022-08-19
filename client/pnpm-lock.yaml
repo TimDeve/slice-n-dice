@@ -9,12 +9,14 @@ specifiers:
   '@mui/material': ^5.3.1
   '@mui/styles': ^5.3.0
   '@trivago/prettier-plugin-sort-imports': ^3.1.1
+  '@types/draftjs-to-html': 0.8.1
   '@types/node': 17.0.12
   '@types/react': 17.0.38
   '@types/react-dom': 17.0.11
   '@vitejs/plugin-react': ^2.0.1
   axios: ^0.25.0
   dayjs: ^1.10.7
+  draftjs-to-html: ^0.8.1
   mui-rte: ^2.0.1
   notistack: ^2.0.3
   prettier: ^2.5.1
@@ -35,11 +37,13 @@ dependencies:
   '@mui/lab': 5.0.0-alpha.66_4waj2pyvk7fhsteruww65vdzi4
   '@mui/material': 5.3.1_6u2bytkb6hruyotteuo7t6mkde
   '@mui/styles': 5.3.0_wchdyfjsjs7jbjx7r7guc3etfq
+  '@types/draftjs-to-html': 0.8.1
   '@types/node': 17.0.12
   '@types/react': 17.0.38
   '@types/react-dom': 17.0.11
   axios: 0.25.0
   dayjs: 1.10.7
+  draftjs-to-html: 0.8.4
   mui-rte: 2.0.1_zhfmfdc4yqa4xeo32vxxk4ouca
   notistack: 2.0.3_aymt3ygvdfpjwpfdsc7ehiqptu
   react: 17.0.2
@@ -1041,6 +1045,12 @@ packages:
       immutable: 3.7.6
     dev: false
 
+  /@types/draftjs-to-html/0.8.1:
+    resolution: {integrity: sha512-NBkphQs+qZ/sAz/j1pCUaxkPAOx00LTsE88aMSSfcvK+UfCpjHJDqIMCkm6wKotuJvY5w0BtdRazQ0sAaXzPdg==}
+    dependencies:
+      '@types/draft-js': 0.11.9
+    dev: false
+
   /@types/node/17.0.12:
     resolution: {integrity: sha512-4YpbAsnJXWYK/fpTVFlMIcUIho2AYCi4wg5aNPrG1ng7fn/1/RZfCIpRCiBX+12RVa34RluilnvCqD+g3KiSiA==}
     dev: false
@@ -1369,6 +1379,10 @@ packages:
       react-dom: 17.0.2_react@17.0.2
     transitivePeerDependencies:
       - encoding
+    dev: false
+
+  /draftjs-to-html/0.8.4:
+    resolution: {integrity: sha512-+4hekxc8dTJvKk6usiEsFX9O1uOD9vLZZOs9ZI3RhTe89yNmtazYII/ILDXfbMPfzNaYfX7Gf3zjRm6UUFxqyg==}
     dev: false
 
   /electron-to-chromium/1.4.219:

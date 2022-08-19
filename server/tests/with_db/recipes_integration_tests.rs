@@ -35,11 +35,9 @@ async fn it_returns_no_recipes_when_there_is_no_recipes(pool: PgPool) -> Result<
 async fn it_returns_recipes(pool: PgPool) -> Result<()> {
     let app = init_app(pool);
 
-    let recipe_body = empty_json_recipe_body();
-
     // Create recipe
     let mut req = Request::new(Method::Post, api_url("/recipes"));
-    req.set_body(json!({"name": "Food Stuff", "quick": true, "body": recipe_body}));
+    req.set_body(json!({"name": "Food Stuff", "quick": true, "body": "<p>Paragraph</p>"}));
     let res: Response = emap(app.respond(req).await)?;
     assert_eq!(StatusCode::Created, res.status());
 
@@ -69,9 +67,7 @@ async fn it_returns_recipes(pool: PgPool) -> Result<()> {
 async fn it_creates_and_retrieves_a_recipe(pool: PgPool) -> Result<()> {
     let app = init_app(pool);
 
-    let mut recipe_body = empty_json_recipe_body();
-    recipe_body["blocks"] = json!([recipe_body_block("What a recipe!")]);
-    let req_body = json!({"name": "Food Stuff", "quick": true, "body": recipe_body});
+    let req_body = json!({"name": "Food Stuff", "quick": true, "body": "<h2>It's got title</h2>"});
 
     // Create recipe
     let mut req = Request::new(Method::Post, api_url("/recipes"));
@@ -108,23 +104,6 @@ async fn it_creates_and_retrieves_a_recipe(pool: PgPool) -> Result<()> {
 
 fn emap<T>(res: Result<T, tide::Error>) -> Result<T, anyhow::Error> {
     res.map_err(tide::Error::into_inner)
-}
-
-fn recipe_body_block(text: &str) -> Value {
-    let key = &Uuid::new_v4().to_string()[0..5];
-    json!({
-      "key": key,
-      "text": text,
-      "type": "unstyled",
-      "depth": 0,
-      "inlineStyleRanges": [],
-      "entityRanges": [],
-      "data": {}
-    })
-}
-
-fn empty_json_recipe_body() -> Value {
-    json!({"blocks":[],"entityMap":{}})
 }
 
 fn api_url(sub_url: &str) -> Url {

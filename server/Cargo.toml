@@ -8,12 +8,15 @@ edition = "2021"
 anyhow      = { version = "1" }
 async-std   = { version = "1", features = ["attributes"] }
 lazy_static = { version = "1.4" }
+lol_html    = { git = "https://github.com/cloudflare/lol-html", rev = "e0cc513" }
 serde       = { version = "1" }
-serde_json  = { version = "1" }
-sqlx        = { version = "0.6", features = ["runtime-async-std-native-tls", "postgres", "migrate", "time", "uuid", "json"] }
+sqlx        = { version = "0.6", features = ["runtime-async-std-native-tls", "postgres", "migrate", "time", "uuid"] }
 tide        = { version = "0.16" }
 time        = { version = "0.3" , features = ["serde", "serde-human-readable", "macros"] }
 uuid        = { version = "1", features = ["serde", "v4"] }
+
+[dev-dependencies]
+serde_json  = { version = "1" }
 
 [features]
 integration-tests-with-db = []

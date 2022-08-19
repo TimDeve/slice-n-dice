@@ -10,7 +10,7 @@ export interface Recipe {
 export interface NewRecipe {
   name: string
   quick: boolean
-  body: RawDraftContentState
+  body: string
 }
 
 export interface RecipeMeal extends Recipe {

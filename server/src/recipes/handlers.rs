@@ -62,10 +62,13 @@ async fn get_recipes(req: Request<AppContext>) -> tide::Result<Body> {
     })
 }
 
-async fn get_recipe(req: Request<AppContext>) -> tide::Result<Body> {
+async fn get_recipe(req: Request<AppContext>) -> tide::Result<Response> {
     let recipe_id = parse_param(&req, "id")?;
-    let recipe = repository::get_recipe(&req.state().pool, recipe_id).await?;
-    Body::from_json(&recipe)
+    let res = match repository::get_recipe(&req.state().pool, recipe_id).await? {
+        Some(recipe) => Body::from_json(&recipe)?.into(),
+        None => StatusCode::NotFound.into(),
+    };
+    Ok(res)
 }
 
 async fn create_recipe(mut req: Request<AppContext>) -> tide::Result<Response> {
@@ -79,5 +82,5 @@ async fn create_recipe(mut req: Request<AppContext>) -> tide::Result<Response> {
 async fn delete_recipe(req: Request<AppContext>) -> tide::Result<Response> {
     let recipe_id = parse_param(&req, "id")?;
     repository::delete_recipe(&req.state().pool, recipe_id).await?;
-    Ok(Response::new(StatusCode::NoContent))
+    Ok(StatusCode::NoContent.into())
 }

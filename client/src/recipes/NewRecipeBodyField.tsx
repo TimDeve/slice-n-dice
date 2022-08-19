@@ -1,18 +1,25 @@
 import { Card } from "@mui/material"
-import { RawDraftContentState, convertToRaw } from "draft-js"
+import { EditorState, RawDraftContentState, convertToRaw } from "draft-js"
+import draftToHtml from "draftjs-to-html"
 import MUIRichTextEditor from "mui-rte"
 
 interface NewRecipeBodyFieldProps {
-  onChange: (state: RawDraftContentState) => void
-  key: number
+  onChange: (state: string) => void
+  fieldKey: number
 }
 
 export default function NewRecipeBodyField(p: NewRecipeBodyFieldProps) {
+  function onChange(s: EditorState) {
+    const raw = convertToRaw(s.getCurrentContent())
+    const html = draftToHtml(raw)
+    p.onChange(html)
+  }
+
   return (
     <Card sx={{ minHeight: "160px" }} variant="outlined">
       <MUIRichTextEditor
         label="Recipe instructions..."
-        key={p.key}
+        key={p.fieldKey}
         controls={[
           "title",
           "bold",
@@ -23,8 +30,9 @@ export default function NewRecipeBodyField(p: NewRecipeBodyFieldProps) {
           "numberList",
           "bulletList",
         ]}
-        onChange={s => p.onChange(convertToRaw(s.getCurrentContent()))}
         inlineToolbar={true}
+        toolbarButtonSize="small"
+        onChange={onChange}
       />
     </Card>
   )
