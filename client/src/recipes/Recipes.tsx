@@ -16,14 +16,15 @@ import {
   Typography,
 } from "@mui/material"
 import makeStyles from "@mui/styles/makeStyles"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useSnackbar } from "notistack"
-import { useEffect, useRef, useState } from "react"
-import { useMutation, useQuery, useQueryClient } from "react-query"
+import { lazy, useEffect, useRef, useState } from "react"
 
-import { Recipe } from "../domain"
+import { LightRecipe } from "../domain"
 import * as gateway from "../gateway"
 import { VoidFn } from "../shared/typeUtils"
 import NewRecipeForm from "./NewRecipeForm"
+import { ViewRecipeDialog } from "./ViewRecipeDialog"
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -38,19 +39,6 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(1),
   },
 }))
-
-function CacheDraftJs() {
-  useEffect(() => {
-    ;(async () => {
-      try {
-        await import("./NewRecipeBodyField")
-      } catch (e) {
-        console.error("Failed to cache NewRecipeBodyField", e)
-      }
-    })()
-  }, [])
-  return <></>
-}
 
 export default function Recipes() {
   const styles = useStyles({})
@@ -79,7 +67,6 @@ interface DeleteRecipeDialogProps {
   handleClose: VoidFn
   handleDelete: VoidFn
 }
-
 function DeleteRecipeDialog({
   recipeName,
   isOpen,
@@ -107,22 +94,17 @@ function DeleteRecipeDialog({
 }
 
 function RecipeList() {
-  const { isLoading, error, data } = useQuery(
-    gateway.getRecipes.name,
+  const { isLoading, isError, data } = useQuery(
+    [gateway.getRecipes.name],
     gateway.getRecipes
   )
 
-  if (isLoading) {
-    return <Loading />
-  }
+  if (isLoading) return <Loading />
 
-  if (error || !data) {
-    return <>"Oops, something went wrong!"</>
-  }
+  if (isError || !data) return <>"Oops, something went wrong!"</>
 
   return (
     <>
-      <CacheDraftJs />
       {data.length === 0 && (
         <Typography
           variant="h5"
@@ -138,15 +120,16 @@ function RecipeList() {
   )
 }
 
-function RecipeItem({ name, quick, id }: Recipe) {
+function RecipeItem({ name, quick, id }: LightRecipe) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [viewDialogOpen, setViewDialogOpen] = useState(false)
 
   const { enqueueSnackbar } = useSnackbar()
   const queryClient = useQueryClient()
   const { mutate: deleteRecipe } = useMutation(gateway.deleteRecipe, {
     onSuccess: () => {
       setDeleteDialogOpen(false)
-      queryClient.invalidateQueries(gateway.getRecipes.name)
+      queryClient.invalidateQueries([gateway.getRecipes.name])
     },
     onError: () => {
       enqueueSnackbar("Failed to delete recipe", { variant: "error" })
@@ -187,6 +170,13 @@ function RecipeItem({ name, quick, id }: Recipe) {
           >
             Delete
           </Button>
+          <Button
+            color="neutral"
+            size="small"
+            onClick={() => setViewDialogOpen(true)}
+          >
+            Show
+          </Button>
         </CardActions>
       </Card>
       <DeleteRecipeDialog
@@ -194,6 +184,11 @@ function RecipeItem({ name, quick, id }: Recipe) {
         isOpen={deleteDialogOpen}
         handleClose={() => setDeleteDialogOpen(false)}
         handleDelete={() => deleteRecipe(id)}
+      />
+      <ViewRecipeDialog
+        recipeId={id}
+        isOpen={viewDialogOpen}
+        onClose={() => setViewDialogOpen(false)}
       />
     </>
   )

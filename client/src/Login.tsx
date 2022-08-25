@@ -4,9 +4,9 @@ import CardActions from "@mui/material/CardActions"
 import CardContent from "@mui/material/CardContent"
 import Container from "@mui/material/Container"
 import TextField from "@mui/material/TextField"
+import { useMutation } from "@tanstack/react-query"
 import { useSnackbar } from "notistack"
 import { useState } from "react"
-import { useMutation } from "react-query"
 
 import * as gateway from "./gateway"
 

@@ -1,7 +1,8 @@
 import { Card } from "@mui/material"
-import { EditorState, RawDraftContentState, convertToRaw } from "draft-js"
-import draftToHtml from "draftjs-to-html"
-import MUIRichTextEditor from "mui-rte"
+import type { EditorState } from "draft-js"
+
+import RichTextEditor from "../shared/text-editor/RichTextEditor"
+import stateToHtml from "../shared/text-editor/stateToHtml"
 
 interface NewRecipeBodyFieldProps {
   onChange: (state: string) => void
@@ -10,28 +11,15 @@ interface NewRecipeBodyFieldProps {
 
 export default function NewRecipeBodyField(p: NewRecipeBodyFieldProps) {
   function onChange(s: EditorState) {
-    const raw = convertToRaw(s.getCurrentContent())
-    const html = draftToHtml(raw)
+    const html = stateToHtml(s)
     p.onChange(html)
   }
 
   return (
     <Card sx={{ minHeight: "160px" }} variant="outlined">
-      <MUIRichTextEditor
+      <RichTextEditor
         label="Recipe instructions..."
         key={p.fieldKey}
-        controls={[
-          "title",
-          "bold",
-          "italic",
-          "underline",
-          "strikethrough",
-          "link",
-          "numberList",
-          "bulletList",
-        ]}
-        inlineToolbar={true}
-        toolbarButtonSize="small"
         onChange={onChange}
       />
     </Card>

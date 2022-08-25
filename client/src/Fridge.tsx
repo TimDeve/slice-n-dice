@@ -10,9 +10,9 @@ import Fab from "@mui/material/Fab/Fab"
 import TextField from "@mui/material/TextField/TextField"
 import Typography from "@mui/material/Typography/Typography"
 import makeStyles from "@mui/styles/makeStyles"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import dayjs, { Dayjs } from "dayjs"
 import { useEffect, useRef, useState } from "react"
-import { useMutation, useQuery, useQueryClient } from "react-query"
 
 import { Food } from "./domain"
 import * as gateway from "./gateway"
@@ -51,7 +51,7 @@ function NewFoodForm() {
   const [date, setDate] = useState<Dayjs | null>(dayjs())
   const { mutateAsync: createFood } = useMutation(gateway.createFood, {
     onSuccess: () => {
-      queryClient.invalidateQueries(gateway.getFoods.name)
+      queryClient.invalidateQueries([gateway.getFoods.name])
       setName("")
       setDate(dayjs())
     },
@@ -100,7 +100,7 @@ function NewFoodForm() {
 
 function FoodList() {
   const { isLoading, error, data } = useQuery(
-    gateway.getFoods.name,
+    [gateway.getFoods.name],
     gateway.getFoods
   )
 
@@ -134,7 +134,7 @@ function FoodItem({ name, bestBeforeDate, id }: Food) {
   const styles = useStyles({ date: bestBeforeDate })
   const { mutateAsync: deleteFood } = useMutation(gateway.deleteFood, {
     onSuccess: () => {
-      queryClient.invalidateQueries(gateway.getFoods.name)
+      queryClient.invalidateQueries([gateway.getFoods.name])
     },
   })
 

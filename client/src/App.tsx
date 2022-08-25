@@ -10,9 +10,9 @@ import {
   Typography,
 } from "@mui/material"
 import { StyledEngineProvider, ThemeProvider } from "@mui/material/styles"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { SnackbarProvider } from "notistack"
 import React from "react"
-import { QueryClient, QueryClientProvider } from "react-query"
 import {
   Link,
   Navigate,

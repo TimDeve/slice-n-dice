@@ -2,7 +2,15 @@ import axios from "axios"
 import dayjs from "dayjs"
 
 import { isAxiosResponseError } from "./axiosHelpers"
-import { Day, Food, Meal, NewFood, NewRecipe, Recipe } from "./domain"
+import {
+  Day,
+  Food,
+  LightRecipe,
+  Meal,
+  NewFood,
+  NewRecipe,
+  Recipe,
+} from "./domain"
 
 export async function logIn({
   username,
@@ -41,7 +49,7 @@ interface GetRecipesResponse {
   }[]
 }
 
-export async function getRecipes(): Promise<Recipe[]> {
+export async function getRecipes(): Promise<LightRecipe[]> {
   try {
     const res = await axios.get<GetRecipesResponse>("/api/v0/recipes")
     return res.data.recipes.map(({ id, name, quick }) => ({
@@ -52,6 +60,17 @@ export async function getRecipes(): Promise<Recipe[]> {
   } catch (e) {
     console.error(e)
     throw new Error("Failed to fetch recipes")
+  }
+}
+
+export async function getRecipe(id: string): Promise<Recipe> {
+  try {
+    const res = await axios.get<Recipe>(`/api/v0/recipes/${id}`)
+    const { name, quick, body } = res.data
+    return { id, name, quick, body }
+  } catch (e) {
+    console.error(e)
+    throw new Error("Failed to fetch recipe")
   }
 }
 

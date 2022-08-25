@@ -1,10 +1,13 @@
 import { Dayjs } from "dayjs"
-import type { RawDraftContentState } from "draft-js"
 
-export interface Recipe {
+export interface LightRecipe {
   id: string
   name: string
   quick: boolean
+}
+
+export interface Recipe extends LightRecipe {
+  body: string
 }
 
 export interface NewRecipe {
@@ -13,7 +16,7 @@ export interface NewRecipe {
   body: string
 }
 
-export interface RecipeMeal extends Recipe {
+export interface RecipeMeal extends LightRecipe {
   type: "recipe"
 }
 

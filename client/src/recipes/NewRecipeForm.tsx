@@ -8,10 +8,9 @@ import {
   TextField,
 } from "@mui/material"
 import makeStyles from "@mui/styles/makeStyles"
-import type { RawDraftContentState } from "draft-js"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useSnackbar } from "notistack"
 import { FormEvent, Suspense, lazy, useState } from "react"
-import { useMutation, useQueryClient } from "react-query"
 
 import * as gateway from "../gateway"
 import LoadingText from "../shared/LoadingText"
@@ -53,7 +52,7 @@ export default function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
   const queryClient = useQueryClient()
   const { mutate: createRecipe } = useMutation(gateway.createRecipe, {
     onSuccess: () => {
-      queryClient.invalidateQueries(gateway.getRecipes.name)
+      queryClient.invalidateQueries([gateway.getRecipes.name])
       setName("")
       resetBodyKey()
       onSuccess?.()

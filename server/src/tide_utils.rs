@@ -47,7 +47,7 @@ mod tests {
 
     // Mainly testing the format string is correct here.
     #[test]
-    fn test_parse_iso_date_param() -> anyhow::Result<()> {
+    fn test_parse_iso_date() -> anyhow::Result<()> {
         let date = parse_iso_date("2022-01-30")?;
         let expected_date = Date::from_calendar_date(2022, Month::January, 30)?;
         assert_eq!(date, expected_date);

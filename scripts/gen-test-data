@@ -1,9 +1,43 @@
 #!/usr/bin/env bash
+set -Eeuo pipefail
 
-recipeBody=$(jq -c '.blocks[1]=.blocks[0] | .blocks[1].key="dead7"' <<'RECIPE_BODY'
-{"blocks":[{"key":"b7ma1","text":"Some recipe thing","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}
-RECIPE_BODY
-)
+loremPlainText="
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Quisque pharetra magna vel sapien elementum vulputate. Proin diam justo,
+fringilla id tincidunt quis, ultricies elementum arcu. Nam arcu nunc,
+pellentesque vel tempus ut, lacinia sed magna. Mauris quis justo vel augue
+laoreet sollicitudin vitae sit amet purus. Integer aliquet auctor risus sit
+amet dictum. Fusce scelerisque nisl ac aliquam eleifend. Sed id urna sed nibh
+auctor suscipit sit amet eu mauris. Quisque eleifend eu ipsum sed accumsan.
+Duis sed malesuada diam, vestibulum facilisis diam. Praesent eu dapibus massa.
+"
+
+loremHtml="<p>$loremPlainText</p>"
+
+recipeBody="
+<h3>Background Story</h3>
+<p>My husband can''t eat chilis so for this Szechuan dish I replaced every single ingredients</p>
+<h2>Actual Recipe</h2>
+<ol>
+<li>Step one</li>
+<li>Step two</li>
+<li>Step three</li>
+</ol>
+"
+recipeBodyPlainText="
+Background Story
+My husband can''t eat chilis so for this Szechuan dish I replaced every single ingredients
+Actual Recipe
+
+Step one
+Step two
+Step three
+"
+
+for i in {1..10}; do
+  recipeBody="$recipeBody$loremHtml"
+  recipeBodyPlainText="$recipeBodyPlainText$loremPlainText"
+done
 
 foodStuff=(Salad Fish Rice Spaghetti Pizza Hamburger Eggs Cheese Sausages Apple Grape Milk Candy Cookie Pie Cake Cupcake)
 foodStuffLength=${#foodStuff[@]}
@@ -28,13 +62,19 @@ function genRecipes() {
       foodName="$foodName${foodStuff[$foodIndex]}$whiteSpace"
     done
 
-    recipeBodyWithName=$(echo "$recipeBody" | jq -c ".blocks[1].text=\"about $foodName\"")
-    query="${query}INSERT INTO recipes (name, quick, body) VALUES ('$foodName', $isQuick, '$recipeBodyWithName');$NEW_LINE"
+    recipeBodyWithName="<p>about $foodName</p>$recipeBody"
+    recipeBodyPlainTextWithName="About $foodName$recipeBodyPlainText"
+    query="${query}INSERT INTO recipes (name, quick, body_html, body_plain_text) VALUES ('$foodName', $isQuick, '$recipeBodyWithName', '$recipeBodyPlainTextWithName');$NEW_LINE"
   done
 }
 
 genRecipes true
 genRecipes false
+
+if [[ "${1-}" == "--migrate" ]]; then
+  cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1
+  sqlx migrate --source ../server/migrations run
+fi
 
 psql "$DATABASE_URL" -c "$query"
 
