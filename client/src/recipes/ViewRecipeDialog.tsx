@@ -5,11 +5,16 @@ import LoadingText from "../shared/LoadingText"
 import { VoidFn } from "../shared/typeUtils"
 
 const Dialog = styled(MuiDialog)(({ theme }) => ({
+  "& .MuiDialog-container": {
+    maxWidth: `590px`,
+    marginLeft: "auto",
+    marginRight: "auto"
+  },
   "& .MuiPaper-root": {
     minHeight: "90vh",
     minWidth: "60vw",
-    maxWidth: "600px",
     margin: theme.spacing(1),
+    height: "100%"
   },
 }))
 

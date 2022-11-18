@@ -45,6 +45,7 @@ foodStuffLength=${#foodStuff[@]}
 NEW_LINE=$'\n'
 
 query=""
+recipeCount=0
 
 function genRecipes() {
   local isQuick="$1"
@@ -65,6 +66,7 @@ function genRecipes() {
     recipeBodyWithName="<p>about $foodName</p>$recipeBody"
     recipeBodyPlainTextWithName="About $foodName$recipeBodyPlainText"
     query="${query}INSERT INTO recipes (name, quick, body_html, body_plain_text) VALUES ('$foodName', $isQuick, '$recipeBodyWithName', '$recipeBodyPlainTextWithName');$NEW_LINE"
+    recipeCount=$((recipeCount + 1))
   done
 }
 
@@ -76,5 +78,6 @@ if [[ "${1-}" == "--migrate" ]]; then
   sqlx migrate --source ../server/migrations run
 fi
 
-psql "$DATABASE_URL" -c "$query"
+psql --quiet "$DATABASE_URL" -v "ON_ERROR_STOP=1" <<< "$query"
 
+echo "Generated $recipeCount recipes"

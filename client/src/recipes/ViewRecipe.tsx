@@ -1,8 +1,7 @@
 import CloseIcon from "@mui/icons-material/Close"
+import EditIcon from "@mui/icons-material/Edit"
 import {
   Box,
-  Button,
-  DialogActions,
   DialogTitle,
   IconButton,
 } from "@mui/material"
@@ -23,6 +22,18 @@ function TitleBar(p: { children: string; onClose: VoidFn }) {
   return (
     <DialogTitle sx={{ paddingBottom: 0 }}>
       {p.children}
+      <IconButton
+        aria-label="edit"
+        onClick={p.onClose}
+        sx={{
+          position: "absolute",
+          right: 52,
+          top: 8,
+          color: theme => theme.palette.grey[500],
+        }}
+      >
+        <EditIcon />
+      </IconButton>
       <IconButton
         aria-label="close"
         onClick={p.onClose}
@@ -59,9 +70,9 @@ export default function ViewRecipe(p: { recipeId: string; onClose: VoidFn }) {
   if (error || data === undefined) return <>Error...</>
 
   return (
-    <section>
+    <section style={{display: "flex", "flexDirection": "column", height: "100%"}}>
       <TitleBar onClose={p.onClose}>{data.name}</TitleBar>
-      <Box sx={{ paddingLeft: "12px", paddingRight: "12px" }}>
+      <Box sx={{ paddingLeft: "12px", paddingRight: "12px", flex: 1, overflow: "auto"  }}>
         <RichTextEditor
           readOnly
           toolbar={false}

@@ -13,10 +13,10 @@ function useEditorKey(): [key: number, reset: VoidFn] {
   return [key, () => setKey(k => k + 1)]
 }
 
-interface NewRecipeFormProps {
+interface EditRecipeFormProps {
   onSuccess?: VoidFn
 }
-export default function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
+export default function EditRecipeForm({ onSuccess }: EditRecipeFormProps) {
   const { enqueueSnackbar } = useSnackbar()
   const nameState = useState("")
   const quickState = useState<boolean>(false)
