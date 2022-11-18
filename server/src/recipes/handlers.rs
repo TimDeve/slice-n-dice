@@ -12,6 +12,7 @@ pub fn init(app: &mut Server<AppContext>) {
     recipes_api.get(get_recipes);
     recipes_api.post(create_recipe);
     recipes_api.at("/:id").get(get_recipe);
+    recipes_api.at("/:id").put(update_recipe);
     recipes_api.at("/:id").delete(delete_recipe);
 }
 
@@ -76,6 +77,22 @@ async fn create_recipe(mut req: Request<AppContext>) -> tide::Result<Response> {
     let created_recipe = repository::create_recipe(&req.state().pool, new_recipe).await?;
 
     let body = Body::from_json(&created_recipe)?;
+    Ok(Response::builder(StatusCode::Created).body(body).build())
+}
+
+async fn update_recipe(mut req: Request<AppContext>) -> tide::Result<Response> {
+    let recipe_id = parse_param(&req, "id")?;
+    let recipe_data: NewRecipe = req.body_json().await?;
+    let updated_recipe = Recipe {
+        id: recipe_id,
+        name: recipe_data.name,
+        body: recipe_data.body,
+        quick: recipe_data.quick,
+    };
+
+    let updated_recipe = repository::update_recipe(&req.state().pool, updated_recipe).await?;
+
+    let body = Body::from_json(&updated_recipe)?;
     Ok(Response::builder(StatusCode::Created).body(body).build())
 }
 

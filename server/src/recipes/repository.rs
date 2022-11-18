@@ -102,6 +102,27 @@ pub async fn create_recipe<'a, E: PgExecutor<'a>>(
     Ok(created_recipe)
 }
 
+pub async fn update_recipe<'a, E: PgExecutor<'a>>(
+    exec: E,
+    recipe: Recipe,
+) -> anyhow::Result<Recipe> {
+    let created_recipe = sqlx::query_as(
+        "UPDATE recipes
+         SET name = $2, quick = $3, body_html = $4, body_plain_text = $5
+         WHERE id = $1
+         RETURNING *",
+    )
+    .bind(&recipe.id)
+    .bind(&recipe.name)
+    .bind(&recipe.quick)
+    .bind(&recipe.body)
+    .bind(&html_filter::to_plain_text(&recipe.body)?)
+    .fetch_one(exec)
+    .await?;
+
+    Ok(created_recipe)
+}
+
 pub async fn delete_recipe<'a, E: PgExecutor<'a>>(exec: E, id: Uuid) -> anyhow::Result<()> {
     sqlx::query("DELETE FROM recipes WHERE id = $1")
         .bind(id)

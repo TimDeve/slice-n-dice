@@ -1,5 +1,6 @@
 import type { RawDraftContentState } from "draft-js"
 import MUIRichTextEditor, { TMUIRichTextEditorProps } from "mui-rte"
+import { useMemo } from "react"
 
 import { headerThree } from "./customBlock"
 
@@ -8,6 +9,12 @@ type RichTextEditorProps = Omit<TMUIRichTextEditorProps, "defaultValue"> & {
 }
 
 export default function RichTextEditor(p: RichTextEditorProps) {
+  const hasDefaultValue: boolean = !!p.defaultValue
+  const defaultValue = useMemo(
+    () => (hasDefaultValue ? JSON.stringify(p.defaultValue) : undefined),
+    [hasDefaultValue]
+  )
+
   return (
     <MUIRichTextEditor
       controls={[
@@ -24,7 +31,7 @@ export default function RichTextEditor(p: RichTextEditorProps) {
       customControls={[headerThree]}
       toolbarButtonSize="small"
       {...p}
-      defaultValue={p.defaultValue && JSON.stringify(p.defaultValue)}
+      defaultValue={defaultValue}
     />
   )
 }

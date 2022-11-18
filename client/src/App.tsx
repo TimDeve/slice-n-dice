@@ -1,3 +1,4 @@
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import DayjsUtils from "@date-io/dayjs"
 import { LocalizationProvider } from "@mui/lab"
 import {
@@ -51,6 +52,7 @@ export default function App() {
                 <MyRoutes />
               </ThemeProvider>
             </StyledEngineProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
           </QueryClientProvider>
         </LocalizationProvider>
       </AuthProvider>

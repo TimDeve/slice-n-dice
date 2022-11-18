@@ -1,38 +1,13 @@
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Checkbox,
-  FormControlLabel,
-  TextField,
-} from "@mui/material"
-import makeStyles from "@mui/styles/makeStyles"
+import { Card } from "@mui/material"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useSnackbar } from "notistack"
-import { FormEvent, Suspense, lazy, useState } from "react"
+import { useState } from "react"
 
 import * as gateway from "../gateway"
-import LoadingText from "../shared/LoadingText"
 import { VoidFn } from "../shared/typeUtils"
+import RecipeForm from "./RecipeForm"
 
-const LazyNewRecipeBodyField = lazy(() => import("./NewRecipeBodyField"))
-
-const useStyles = makeStyles(theme => ({
-  fab: {
-    position: "fixed",
-    bottom: theme.spacing(2),
-    right: theme.spacing(2),
-  },
-  recipeItemAlert: () => {
-    return { color: theme.palette.text.secondary }
-  },
-  field: {
-    marginBottom: theme.spacing(1),
-  },
-}))
-
-function useEditorKey(): [number, VoidFn] {
+function useEditorKey(): [key: number, reset: VoidFn] {
   const [key, setKey] = useState(0)
 
   return [key, () => setKey(k => k + 1)]
@@ -42,18 +17,17 @@ interface NewRecipeFormProps {
   onSuccess?: VoidFn
 }
 export default function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
-  const styles = useStyles({})
   const { enqueueSnackbar } = useSnackbar()
-  const [name, setName] = useState("")
-  const [quick, setQuick] = useState<boolean>(false)
-  const [body, setBody] = useState("")
+  const nameState = useState("")
+  const quickState = useState<boolean>(false)
+  const bodyState = useState("")
   const [bodyKey, resetBodyKey] = useEditorKey()
-
   const queryClient = useQueryClient()
+
   const { mutate: createRecipe } = useMutation(gateway.createRecipe, {
     onSuccess: () => {
       queryClient.invalidateQueries([gateway.getRecipes.name])
-      setName("")
+      nameState[1]("")
       resetBodyKey()
       onSuccess?.()
     },
@@ -62,54 +36,19 @@ export default function NewRecipeForm({ onSuccess }: NewRecipeFormProps) {
     },
   })
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  function onSubmit() {
     createRecipe({
-      name,
-      quick,
-      body,
+      name: nameState[0],
+      quick: quickState[0],
+      body: bodyState[0],
     })
-  }
-
-  function submitable(): boolean {
-    return !!name
   }
 
   return (
     <Card sx={{ marginTop: "14px", marginBottom: "14px" }}>
-      <form onSubmit={onSubmit}>
-        <CardContent>
-          <TextField
-            className={styles.field}
-            value={name}
-            name="name"
-            label="Recipe Name"
-            onChange={e => setName(e.target.value)}
-          />
-          <br />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={quick}
-                name="quick"
-                onChange={e => setQuick(e.target.checked)}
-              />
-            }
-            label="Under 30 minutes?"
-          />
-          <Suspense fallback={<LoadingText zeroHeight block />}>
-            <LazyNewRecipeBodyField
-              onChange={state => setBody(state)}
-              fieldKey={bodyKey}
-            />
-          </Suspense>
-        </CardContent>
-        <CardActions>
-          <Button type="submit" size="small" disabled={!submitable()}>
-            Add
-          </Button>
-        </CardActions>
-      </form>
+      <RecipeForm
+        {...{ nameState, quickState, bodyState, bodyKey, onSubmit }}
+      />
     </Card>
   )
 }
