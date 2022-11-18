@@ -2,6 +2,7 @@ import { Card } from "@mui/material"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useSnackbar } from "notistack"
 import { useState } from "react"
+import { Recipe } from "../domain"
 
 import * as gateway from "../gateway"
 import { VoidFn } from "../shared/typeUtils"
@@ -15,12 +16,13 @@ function useEditorKey(): [key: number, reset: VoidFn] {
 
 interface EditRecipeFormProps {
   onSuccess?: VoidFn
+  recipe: Recipe
 }
-export default function EditRecipeForm({ onSuccess }: EditRecipeFormProps) {
+export default function EditRecipeForm({ onSuccess, recipe }: EditRecipeFormProps) {
   const { enqueueSnackbar } = useSnackbar()
-  const nameState = useState("")
-  const quickState = useState<boolean>(false)
-  const bodyState = useState("")
+  const nameState = useState(recipe.name)
+  const quickState = useState<boolean>(recipe.quick)
+  const bodyState = useState(recipe.body)
   const [bodyKey, resetBodyKey] = useEditorKey()
   const queryClient = useQueryClient()
 
@@ -45,10 +47,8 @@ export default function EditRecipeForm({ onSuccess }: EditRecipeFormProps) {
   }
 
   return (
-    <Card sx={{ marginTop: "14px", marginBottom: "14px" }}>
       <RecipeForm
         {...{ nameState, quickState, bodyState, bodyKey, onSubmit }}
       />
-    </Card>
   )
 }

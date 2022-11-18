@@ -1,10 +1,6 @@
 import CloseIcon from "@mui/icons-material/Close"
 import EditIcon from "@mui/icons-material/Edit"
-import {
-  Box,
-  DialogTitle,
-  IconButton,
-} from "@mui/material"
+import { Box, DialogTitle, IconButton } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
 import {
   ContentState,
@@ -12,19 +8,22 @@ import {
   convertFromHTML,
   convertToRaw,
 } from "draft-js"
+import { useState } from "react"
 
 import * as gateway from "../gateway"
 import LoadingText from "../shared/LoadingText"
+import htmlToRawState from "../shared/text-editor/htmlToRawState"
 import RichTextEditor from "../shared/text-editor/RichTextEditor"
 import { VoidFn } from "../shared/typeUtils"
+import EditRecipeForm from "./EditRecipeForm"
 
-function TitleBar(p: { children: string; onClose: VoidFn }) {
+function TitleBar(p: { children: string | boolean; onClose: VoidFn; onEdit: VoidFn}) {
   return (
     <DialogTitle sx={{ paddingBottom: 0 }}>
       {p.children}
       <IconButton
         aria-label="edit"
-        onClick={p.onClose}
+        onClick={p.onEdit}
         sx={{
           position: "absolute",
           right: 52,
@@ -50,16 +49,8 @@ function TitleBar(p: { children: string; onClose: VoidFn }) {
   )
 }
 
-function htmlToRteDefaultValue(html: string): RawDraftContentState {
-  const fromHtml = convertFromHTML(html)
-  const state = ContentState.createFromBlockArray(
-    fromHtml.contentBlocks,
-    fromHtml.entityMap
-  )
-  return convertToRaw(state)
-}
-
 export default function ViewRecipe(p: { recipeId: string; onClose: VoidFn }) {
+  const [editing, setEditing] = useState(false)
   const { isLoading, error, data } = useQuery(
     [gateway.getRecipe.name, p.recipeId],
     () => gateway.getRecipe(p.recipeId)
@@ -70,15 +61,30 @@ export default function ViewRecipe(p: { recipeId: string; onClose: VoidFn }) {
   if (error || data === undefined) return <>Error...</>
 
   return (
-    <section style={{display: "flex", "flexDirection": "column", height: "100%"}}>
-      <TitleBar onClose={p.onClose}>{data.name}</TitleBar>
-      <Box sx={{ paddingLeft: "12px", paddingRight: "12px", flex: 1, overflow: "auto"  }}>
-        <RichTextEditor
-          readOnly
-          toolbar={false}
-          defaultValue={htmlToRteDefaultValue(data.body)}
-        />
-      </Box>
+    <section
+      style={{ display: "flex", flexDirection: "column", maxHeight: "100%" }}
+    >
+      <TitleBar onClose={p.onClose} onEdit={() => setEditing(e => !e)}>
+        {!editing && data.name}
+      </TitleBar>
+      {editing ? (
+        <EditRecipeForm recipe={data} />
+      ) : (
+        <Box
+          sx={{
+            paddingLeft: "12px",
+            paddingRight: "12px",
+            flex: 1,
+            overflow: "auto",
+          }}
+        >
+          <RichTextEditor
+            readOnly
+            toolbar={false}
+            defaultValue={htmlToRawState(data.body)}
+          />
+        </Box>
+      )}
     </section>
   )
 }

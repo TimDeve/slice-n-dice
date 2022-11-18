@@ -10,11 +10,7 @@ export interface Recipe extends LightRecipe {
   body: string
 }
 
-export interface NewRecipe {
-  name: string
-  quick: boolean
-  body: string
-}
+export type NewRecipe = Omit<Recipe, "id">
 
 export interface RecipeMeal extends LightRecipe {
   type: "recipe"

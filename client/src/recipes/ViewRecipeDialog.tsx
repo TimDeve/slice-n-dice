@@ -10,7 +10,7 @@ const Dialog = styled(MuiDialog)(({ theme }) => ({
     marginLeft: "auto",
     marginRight: "auto"
   },
-  "& .MuiPaper-root": {
+  "&>*>.MuiPaper-root": {
     minHeight: "90vh",
     minWidth: "60vw",
     margin: theme.spacing(1),
