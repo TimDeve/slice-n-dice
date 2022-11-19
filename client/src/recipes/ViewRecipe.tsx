@@ -12,15 +12,20 @@ import { useState } from "react"
 
 import * as gateway from "../gateway"
 import LoadingText from "../shared/LoadingText"
-import htmlToRawState from "../shared/text-editor/htmlToRawState"
+import Nbsp from "../shared/Nbsp"
 import RichTextEditor from "../shared/text-editor/RichTextEditor"
+import htmlToRawState from "../shared/text-editor/htmlToRawState"
 import { VoidFn } from "../shared/typeUtils"
 import EditRecipeForm from "./EditRecipeForm"
 
-function TitleBar(p: { children: string | boolean; onClose: VoidFn; onEdit: VoidFn}) {
+function TitleBar(p: {
+  children: React.ReactNode
+  onClose: VoidFn
+  onEdit: VoidFn
+}) {
   return (
     <DialogTitle sx={{ paddingBottom: 0 }}>
-      {p.children}
+      {p.children || <Nbsp />}
       <IconButton
         aria-label="edit"
         onClick={p.onEdit}

@@ -5,7 +5,7 @@ import {
   convertToRaw,
 } from "draft-js"
 
- export default function htmlToRawState(html: string): RawDraftContentState {
+export default function htmlToRawState(html: string): RawDraftContentState {
   const fromHtml = convertFromHTML(html)
   const state = ContentState.createFromBlockArray(
     fromHtml.contentBlocks,
@@ -13,4 +13,3 @@ import {
   )
   return convertToRaw(state)
 }
-

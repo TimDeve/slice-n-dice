@@ -91,6 +91,15 @@ export async function createRecipe({
   }
 }
 
+export async function updateRecipe(r: Recipe): Promise<void> {
+  try {
+    await axios.put(`/api/v0/recipes/${r.id}`, r)
+  } catch (e) {
+    console.error(e)
+    throw new Error("Failed to create recipe")
+  }
+}
+
 export async function deleteRecipe(recipeId: string): Promise<void> {
   try {
     await axios.delete(`/api/v0/recipes/${recipeId}`)

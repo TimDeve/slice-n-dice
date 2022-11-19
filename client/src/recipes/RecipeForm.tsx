@@ -38,6 +38,7 @@ interface RecipeFormProps {
   quickState: ReactState<boolean>
   bodyState: ReactState<string>
   bodyKey: number
+  defaultBody?: string
 }
 export default function RecipeForm(p: RecipeFormProps) {
   const styles = useStyles({})
@@ -60,7 +61,7 @@ export default function RecipeForm(p: RecipeFormProps) {
         flexGrow: 1,
         display: "flex",
         flexDirection: "column",
-        maxHeight: "96%",
+        maxHeight: "95%",
       }}
       onSubmit={onSubmit}
     >
@@ -69,7 +70,7 @@ export default function RecipeForm(p: RecipeFormProps) {
           flexGrow: 1,
           display: "flex",
           flexDirection: "column",
-          maxHeight: "calc(100% - 64px)"
+          maxHeight: "calc(100% - 64px)",
         }}
       >
         <TextField
@@ -93,7 +94,9 @@ export default function RecipeForm(p: RecipeFormProps) {
           <LazyRecipeBodyField
             onChange={state => setBody(state)}
             fieldKey={p.bodyKey}
-            defaultValue={htmlToRawState(p.bodyState[0])}
+            defaultValue={
+              p.defaultBody ? htmlToRawState(p.defaultBody) : undefined
+            }
           />
         </Suspense>
       </CardContent>
