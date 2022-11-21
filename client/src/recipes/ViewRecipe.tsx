@@ -67,9 +67,9 @@ export default function ViewRecipe(p: { recipeId: string; onClose: VoidFn }) {
   if (error || data === undefined) return <>Error...</>
 
   function onSuccessfulEditing() {
-      queryClient.invalidateQueries([gateway.getRecipes.name])
-      queryClient.invalidateQueries([gateway.getRecipe.name, p.recipeId])
-      setEditing(false)
+    queryClient.invalidateQueries([gateway.getRecipes.name])
+    queryClient.invalidateQueries([gateway.getRecipe.name, p.recipeId])
+    setEditing(false)
   }
 
   return (

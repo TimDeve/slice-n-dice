@@ -1,4 +1,3 @@
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import DayjsUtils from "@date-io/dayjs"
 import { LocalizationProvider } from "@mui/lab"
 import {
@@ -23,6 +22,7 @@ import {
   useMatch,
 } from "react-router-dom"
 
+import QueryDevtools from "./QueryDevtools"
 import { AuthProvider, useAuth } from "./auth"
 import * as gateway from "./gateway"
 import * as pages from "./pages"
@@ -52,7 +52,7 @@ export default function App() {
                 <MyRoutes />
               </ThemeProvider>
             </StyledEngineProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
+            <QueryDevtools />
           </QueryClientProvider>
         </LocalizationProvider>
       </AuthProvider>
@@ -63,11 +63,11 @@ export default function App() {
 function TopBar() {
   const { isLoggedIn } = useAuth()
 
-  const isRootPage = useMatch({ path: "/" })!!
+  const isRootPage = useMatch({ path: "/" })
   const isCalendarPage =
-    useMatch({ path: "/calendar/:weekStart" })!! || isRootPage
-  const isRecipesPage = useMatch({ path: "/recipes" })!!
-  const isFridgePage = useMatch({ path: "/fridge" })!!
+    useMatch({ path: "/calendar/:weekStart" }) || isRootPage
+  const isRecipesPage = useMatch({ path: "/recipes" })
+  const isFridgePage = useMatch({ path: "/fridge" })
 
   let currentPage = ""
   if (isCalendarPage) {

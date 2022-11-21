@@ -15,6 +15,7 @@ const Dialog = styled(MuiDialog)(({ theme }) => ({
     minWidth: "60vw",
     margin: theme.spacing(1),
     height: "100%",
+    width: "100%",
   },
 }))
 

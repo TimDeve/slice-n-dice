@@ -4,13 +4,13 @@
   "private": true,
   "proxy": "http://localhost:8090",
   "scripts": {
-    "start": "vite",
-    "dev": "vite",
+    "start": "pnpm run dev",
+    "dev": "concurrently --prefix none 'pnpm run dev:type' 'pnpm run dev:build'",
+    "dev:build": "vite --clearScreen=false",
+    "dev:type": "tsc --watch --preserveWatchOutput --pretty true",
     "build": "tsc && vite build",
     "build:only": "vite build",
-    "preview": "vite preview",
-    "type": "tsc",
-    "type:watch": "tsc --watch",
+    "preview": "concurrently -n ' Serve , Build ' -c 'blue,green' 'vite preview' 'vite build --watch'",
     "deps-stats": "env VISUALIZE_DEPS=1 vite build && echo 'Stats generated at ./deps-stats.html'",
     "fmt": "prettier --write src public"
   },
@@ -39,6 +39,7 @@
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^3.1.1",
     "@vitejs/plugin-react": "^2.0.1",
+    "concurrently": "^7.3.0",
     "prettier": "^2.5.1",
     "rollup-plugin-visualizer": "^5.7.1",
     "sass": "^1.49.0",
