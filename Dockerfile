@@ -20,7 +20,7 @@ RUN go build -o slice-gateway ./...
 FROM node:16-bullseye-slim as node-builder
 LABEL builder=true
 
-RUN npm install --global pnpm
+RUN npm install --global pnpm@8
 
 RUN mkdir -p /root/app/client
 WORKDIR /root/app/client
